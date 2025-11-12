@@ -1,0 +1,73 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  padding: 20px;
+}
+/* Default small header for all pages */
+.default-header {
+  padding: 15px 20px;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid #fff;
+}
+
+.logo-title-small {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* space between logo and text */
+}
+
+.small-logo {
+  width: 50px;   /* small logo size */
+  height: auto;
+  border-radius: 50%; /* keeps circular */
+}
+
+.default-header h1 {
+  font-size: 1.5em;  /* smaller than home page */
+  color: #fff;
+  margin: 0;
+}
+
+
+.dashboard-container {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  background: #4CAF50;
+  color: white;
+}
+
+button {
+  padding: 5px 10px;
+  margin: 2px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button:first-child {
+  background: green;
+  color: white;
+}
+
+button:last-child {
+  background: red;
+  color: white;
+}

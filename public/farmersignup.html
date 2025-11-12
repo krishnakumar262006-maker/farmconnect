@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farmer Signup</title>
+  <link rel="stylesheet" href="signup.css">
+  <header class="default-header">
+  <div class="logo-title-small">
+    <img src="logo.png" alt="Farm Connect Logo" class="small-logo">
+    <h1>Farm Connect</h1>
+  </div>
+</header>
+
+  <style>
+    /* Animation overlay */
+    #successOverlay {
+      position: fixed;
+      top:0; left:0; right:0; bottom:0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      flex-direction: column;
+      color: white;
+      text-align: center;
+    }
+    /* Default small header for all pages */
+.default-header {
+  padding: 15px 20px;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid #fff;
+}
+
+.logo-title-small {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* space between logo and text */
+}
+
+.small-logo {
+  width: 50px;   /* small logo size */
+  height: auto;
+  border-radius: 50%; /* keeps circular */
+}
+
+.default-header h1 {
+  font-size: 1.5em;  /* smaller than home page */
+  color: #fff;
+  margin: 0;
+}
+
+    #successOverlay img {
+      width: 150px;
+      margin-bottom: 20px;
+      animation: plantSeed 2s infinite;
+    }
+    #successOverlay h2 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+    @keyframes plantSeed {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+      100% { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="farmer-bg">
+  <div class="signup-container">
+    <h2>👨‍🌾 Farmer Signup</h2>
+    <form id="signupForm">
+      <input id="name" placeholder="Full Name" required>
+      <input id="phone" placeholder="Phone Number" required>
+      <label for="dob">Date of Birth:</label>
+      <input id="dob" type="date" required>
+      <select id="state" required>
+        <option value="">-- Select State --</option>
+      </select>
+      <select id="district" required>
+        <option value="">-- Select District --</option>
+      </select>
+      <input id="pincode" placeholder="Pin Code" required>
+      <button type="submit">Sign Up</button>
+      <p>Already have an account? <a href="farmerlogin.html">Login</a></p>
+    </form>
+  </div>
+
+  <!-- Success overlay -->
+  <div id="successOverlay">
+    <img src="https://cdn-icons-png.flaticon.com/512/3078/3078133.png" alt="Planting Animation">
+    <h2>Signup Successful!</h2>
+    <p>Redirecting to login...</p>
+  </div>
+
+  <script>
+    const states = {
+      "Andhra Pradesh": ["Anantapur","Chittoor","East Godavari","Guntur","Krishna","Kurnool","Prakasam","Srikakulam","Visakhapatnam","Vizianagaram","West Godavari","YSR Kadapa"],
+      "Karnataka": ["Bagalkot","Bangalore Rural","Bangalore Urban","Belgaum","Bellary","Bidar","Chamarajanagar","Chikballapur","Chikkamagaluru","Chitradurga","Dakshina Kannada","Davanagere","Dharwad","Gadag","Hassan","Haveri","Kodagu","Kolar","Koppal","Mandya","Mysore","Raichur","Ramanagara","Shimoga","Tumkur","Udupi","Uttara Kannada","Yadgir"],
+      "Tamil Nadu": ["Ariyalur","Chennai","Coimbatore","Cuddalore","Dharmapuri","Dindigul","Erode","Kanchipuram","Kanyakumari","Karur","Krishnagiri","Madurai","Nagapattinam","Namakkal","Perambalur","Pudukkottai","Ramanathapuram","Salem","Sivaganga","Thanjavur","Theni","Thoothukudi","Tiruchirappalli","Tirunelveli","Tiruppur","Tiruvallur","Tiruvannamalai","Tiruvarur","Vellore","Viluppuram","Virudhunagar"],
+      "Maharashtra": ["Ahmednagar","Akola","Amravati","Aurangabad","Beed","Bhandara","Buldhana","Chandrapur","Dhule","Gadchiroli","Gondia","Hingoli","Jalgaon","Jalna","Kolhapur","Latur","Mumbai","Nagpur","Nanded","Nandurbar","Nashik","Osmanabad","Palghar","Parbhani","Pune","Raigad","Ratnagiri","Sangli","Satara","Sindhudurg","Solapur","Thane","Wardha","Washim","Yavatmal"],
+      "Uttar Pradesh": ["Agra","Aligarh","Allahabad","Ambedkar Nagar","Amethi","Amroha","Auraiya","Ayodhya","Azamgarh","Baghpat","Bahraich","Ballia","Balrampur","Banda","Barabanki","Bareilly","Basti","Bhadohi","Bijnor","Bulandshahr","Chandauli","Chitrakoot","Deoria","Etah","Etawah","Farrukhabad","Fatehpur","Firozabad","Gautam Buddha Nagar","Ghaziabad","Ghazipur","Gonda","Gorakhpur","Hamirpur","Hardoi","Hathras","Jalaun","Jaunpur","Jhansi","Kannauj","Kanpur Dehat","Kanpur Nagar","Kasganj","Kaushambi","Kushinagar","Lakhimpur Kheri","Lalitpur","Lucknow","Maharajganj","Mahoba","Mainpuri","Mathura","Mau","Meerut","Mirzapur","Moradabad","Muzaffarnagar","Pilibhit","Pratapgarh","Rae Bareli","Rampur","Saharanpur","Sambhal","Sant Kabir Nagar","Shahjahanpur","Shamli","Shravasti","Siddharthnagar","Sitapur","Sonbhadra","Sultanpur","Unnao","Varanasi"]
+    };
+
+    const stateSelect = document.getElementById('state');
+    const districtSelect = document.getElementById('district');
+
+    // Populate states
+    for (let state in states) {
+      const opt = document.createElement('option');
+      opt.value = state;
+      opt.textContent = state;
+      stateSelect.appendChild(opt);
+    }
+
+    stateSelect.addEventListener('change', () => {
+      districtSelect.innerHTML = '<option value="">-- Select District --</option>';
+      const districts = states[stateSelect.value] || [];
+      districts.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        districtSelect.appendChild(opt);
+      });
+    });
+
+    // Signup form submission
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const dob = document.getElementById('dob').value;
+      const state = document.getElementById('state').value;
+      const district = document.getElementById('district').value;
+      const pincode = document.getElementById('pincode').value.trim();
+
+      if(!name || !phone || !dob || !state || !district || !pincode){
+        alert('Please fill all fields');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/farmer/signup', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ name, phone, dob, state, district, pincode })
+        });
+        const data = await res.json();
+        if(data.success){
+          // Show success animation
+          document.getElementById('successOverlay').style.display = 'flex';
+          setTimeout(()=> window.location.href='farmerlogin.html', 4000);
+        } else {
+          alert(data.message || 'Signup failed');
+        }
+      } catch(err){
+        console.error('Signup error', err);
+        alert('Something went wrong');
+      }
+    });
+  </script>
+</body>
+</html>

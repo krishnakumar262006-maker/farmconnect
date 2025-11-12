@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Farmer Dashboard | FarmConnect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+  <style>
+    :root{
+      --primary: #2874f0;
+      --accent: #ff9f00;
+      --bg: #f1f3f6;
+      --card: #ffffff;
+      --muted: #666;
+      --success: #0a8a34;
+      --danger: #c1121f;
+      --glass: rgba(255,255,255,0.6);
+      --nav-height: 64px;
+      --delivery-fee: 50;
+    }
+    *{ box-sizing: border-box; font-family: "Poppins", sans-serif; }
+    html,body{ height:100%; margin:0; background:var(--bg); color:#222; -webkit-font-smoothing:antialiased; }
+    /* header */
+    .default-header{
+      position: sticky; top:0; z-index:1200;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 20px; background: linear-gradient(90deg,var(--primary), #1f5bd6); color:#fff;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+    }
+    .logo-title-small{ display:flex; align-items:center; gap:14px; }
+    .small-logo{ width:56px; height:auto; border-radius:10px; background:#fff; padding:6px; }
+    .default-header h1{ margin:0; font-size:20px; font-weight:700; letter-spacing:0.2px; }
+    /* nav */
+    nav{
+      display:flex; gap:12px; padding:10px; align-items:center;
+      background:linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+      position:sticky; top:72px; z-index:1100; box-shadow:0 6px 16px rgba(0,0,0,0.06);
+    }
+    nav button{ background:none; border:none; cursor:pointer; color:var(--primary); font-weight:700; padding:8px 12px; border-radius:8px; }
+    nav button:hover{ background:rgba(40,116,240,0.08); }
+    main{ max-width:1200px; margin:18px auto; padding:0 18px 60px; }
+    h2{ color:var(--primary); margin:0 0 12px; }
+    .grid{ display:grid; gap:14px; }
+    .card{ background:var(--card); padding:14px; border-radius:12px; box-shadow:0 6px 18px rgba(12,12,12,0.06); }
+    /* home layout */
+    #homeContent .cards-grid{ display:grid; grid-template-columns: 1fr 360px; gap:14px; }
+    .info-cards{ display:grid; gap:10px; }
+    .msg-card h4{ margin:0 0 6px; color:var(--primary); }
+    .event-row{ display:flex; gap:10px; align-items:center; justify-content:space-between; }
+    .trending-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap:10px; }
+    .trending-item img{ width:100%; height:110px; object-fit:cover; border-radius:8px; display:block; }
+    .deal{ background: linear-gradient(90deg, #fff7ed, #fffaf0); border-left:4px solid var(--accent); padding:12px; border-radius:8px; }
+    /* products list */
+    #productList{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:12px; }
+    .prod-card img{ width:100%; height:140px; object-fit:cover; border-radius:8px; margin-bottom:10px; }
+    .prod-card .meta{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    /* forms */
+    input,select,textarea{ width:100%; padding:10px; border-radius:8px; border:1px solid #e6e6e6; }
+    button.action{ background:var(--primary); color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700; }
+    button.ghost{ background:transparent; border:1px solid #e6e6e6; padding:10px 14px; border-radius:10px; cursor:pointer; }
+    /* modal */
+    .modal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); align-items:center; justify-content:center; z-index:2000; }
+    .modal .modal-content{ background:var(--card); padding:22px; border-radius:14px; text-align:center; width:380px; box-shadow:0 12px 36px rgba(0,0,0,0.18); }
+    /* visits list */
+    .visit-row{ display:flex; flex-direction:column; gap:8px; padding:12px; border-radius:8px; background:var(--card); border:1px solid #f0f0f0; }
+    .visit-actions{ display:flex; gap:8px; margin-top:6px; }
+    /* responsive */
+    @media (max-width:980px){
+      #homeContent .cards-grid{ grid-template-columns: 1fr; }
+      nav{ overflow:auto; padding:12px 6px; }
+      .modal .modal-content{ width:90%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="default-header">
+    <div class="logo-title-small">
+      <img src="logo.png" class="small-logo" alt="logo">
+      <h1>Farm Connect — Farmer Dashboard</h1>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div style="color:#fff; font-weight:600;">Hello, Farmer</div>
+      <button onclick="logout()" class="action" style="background:#ff6b6b;border-radius:10px;padding:8px 12px;">Logout</button>
+    </div>
+  </header>
+
+  <nav>
+    <button onclick="showSection('home')"><i class="fas fa-home"></i> Home</button>
+    <button onclick="showSection('products')"><i class="fas fa-seedling"></i> Products</button>
+    <button onclick="showSection('visits')"><i class="fas fa-tractor"></i> Farm Visits</button>
+    <button onclick="showSection('orders')"><i class="fas fa-box"></i> Orders</button>
+    <button onclick="showSection('profile')"><i class="fas fa-user"></i> Profile</button>
+  </nav>
+
+  <main>
+    <!-- HOME -->
+    <section id="home" class="card active">
+      <h2>🌾 Dashboard Home</h2>
+      <div id="homeContent">
+        <div class="cards-grid">
+          <div>
+            <div class="info-cards">
+              <div class="card msg-card" id="announcements">
+                <h4>Announcements</h4>
+                <div id="annList">Loading announcements...</div>
+              </div>
+              <div class="card" id="eventsCard">
+                <h4>Upcoming Events</h4>
+                <div id="eventsList">Loading events...</div>
+              </div>
+              <div class="card" id="tipsCard">
+                <h4>Helpful Tips</h4>
+                <ul id="tipsList" style="margin:8px 0 0 16px; color:var(--muted)"></ul>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card">
+              <h4 style="margin:0 0 10px;">🔥 Trending Products</h4>
+              <div id="trendingGrid" class="trending-grid">Loading...</div>
+            </div>
+
+            <div class="card" style="margin-top:12px;">
+              <h4 style="margin:0 0 10px;">💰 Best Deals</h4>
+              <div id="bestDeals">Loading best deals...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section id="products" class="card" style="display:none;">
+      <h2>🥕 Products</h2>
+      <form id="productForm" style="display:grid; gap:10px;">
+        <input id="name" placeholder="Product name" required />
+        <select id="type" required>
+          <option value="">-- Select type --</option>
+          <option value="Rice">Rice</option>
+          <option value="Pulses">Pulses</option>
+          <option value="Cereals">Cereals</option>
+          <option value="Seeds">Seeds</option>
+          <option value="Oils">Oils</option>
+          <option value="Vegetables">Vegetables</option>
+          <option value="Fruits">Fruits</option>
+          <option value="Spices">Spices</option>
+          <option value="Other">Other</option>
+        </select>
+        <input id="price" type="number" placeholder="Price (₹)" required />
+        <input id="quantity" type="number" placeholder="Quantity" required />
+        <input type="file" id="images" multiple />
+        <div style="display:flex; gap:8px;">
+          <button type="submit" class="action">Add Product</button>
+          <button type="button" class="ghost" onclick="loadProducts()">Refresh</button>
+        </div>
+      </form>
+
+      <div style="margin-top:14px;">
+        <div id="productList">Loading products...</div>
+      </div>
+    </section>
+
+    <!-- VISITS -->
+    <section id="visits" class="card" style="display:none;">
+      <h2>🚜 Farm Visits</h2>
+      <div style="display:grid; grid-template-columns:1fr 420px; gap:14px;">
+        <div>
+          <p>Incoming visit requests — approve or reject with remarks. When approving you can also write a confirmation message that will be sent to the consumer.</p>
+          <div id="visitRequestsContainer">Loading...</div>
+        </div>
+
+        <div>
+          <h4 style="margin-top:0;">Create Visit Slot</h4>
+          <div style="display:grid; gap:8px;">
+            <label>Slot Date</label><input type="date" id="slot_date" />
+            <label>Start Time</label><input type="time" id="slot_start" />
+            <label>End Time</label><input type="time" id="slot_end" />
+            <label>Description (optional)</label><textarea id="slot_desc"></textarea>
+            <div style="display:flex; gap:8px;">
+              <button class="action" onclick="createSlot()">Create Slot</button>
+              <button class="ghost" onclick="loadVisits()">Refresh</button>
+            </div>
+            <div id="slotsList" style="margin-top:8px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ORDERS -->
+    <section id="orders" class="card" style="display:none;">
+      <h2>📦 Orders</h2>
+      <div id="orderContainer">Loading orders...</div>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="profile" class="card" style="display:none;">
+      <h2>👤 My Profile</h2>
+      <div id="profileDetails">Loading...</div>
+    </section>
+
+  </main>
+
+  <!-- Modal -->
+  <div class="modal" id="feedbackModal">
+    <div class="modal-content">
+      <lottie-player id="modalAnim" background="transparent" speed="1" style="width:150px;height:150px;" autoplay></lottie-player>
+      <h3 id="modalTitle">Message</h3>
+      <p id="modalBody" style="color:var(--muted)"></p>
+      <div style="margin-top:10px;">
+        <button class="action" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <footer style="text-align:center; padding:14px; color:var(--muted);">
+    &copy; 2025 FarmConnect | Developer: Krishna
+  </footer>
+
+<script>
+/* -------------------------
+   Keep existing logic & API calls intact — only UI/UX improvements added
+   ------------------------- */
+const farmerId = localStorage.getItem('farmerId');
+if(!farmerId){
+  // keep the same behavior as original: alert and redirect.
+  alert('Please login first');
+  window.location.href = 'farmerlogin.html';
+}
+
+/* --- small UI helpers --- */
+function showSection(id){
+  document.querySelectorAll('section').forEach(s=> s.style.display = 'none');
+  const el = document.getElementById(id);
+  if(el) el.style.display = '';
+  // load relevant data when switching
+  if(id === 'home') loadHome();
+  if(id === 'products') loadProducts();
+  if(id === 'visits') loadVisits();
+  if(id === 'orders') loadOrders();
+  if(id === 'profile') loadProfile();
+}
+
+function showModal(type, title, body = '', animUrl){
+  const modal = document.getElementById('feedbackModal');
+  modal.style.display = 'flex';
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').textContent = body || '';
+  const anim = document.getElementById('modalAnim');
+  if(animUrl) anim.src = animUrl;
+}
+function closeModal(){ document.getElementById('feedbackModal').style.display = 'none'; }
+
+/* --- HOME: announcements, events, trending, deals --- */
+async function loadHome(){
+  const annList = document.getElementById('annList');
+  const eventsList = document.getElementById('eventsList');
+  const trendingGrid = document.getElementById('trendingGrid');
+  const bestDeals = document.getElementById('bestDeals');
+  const tipsList = document.getElementById('tipsList');
+
+  // optimistic UI placeholders
+  annList.innerHTML = 'Loading announcements...';
+  eventsList.innerHTML = 'Loading events...';
+  trendingGrid.innerHTML = 'Loading...';
+  bestDeals.innerHTML = 'Loading...';
+  tipsList.innerHTML = '<li>Loading tips...</li>';
+
+  try{
+    // call same endpoints you used earlier (keeps logic intact)
+    const [mRes, eRes, tRes] = await Promise.allSettled([
+      fetch('/api/admin/messages'),
+      fetch('/api/admin/events'),
+      fetch('/api/market/trending')
+    ]);
+
+    // MESSAGES
+    let messages = [];
+    if(mRes.status === 'fulfilled'){
+      try{ const j = await mRes.value.json(); messages = Array.isArray(j)? j : []; } catch(e){ messages = []; }
+    }
+    if(!messages.length){
+      // fallback sample
+      messages = [
+        { title: 'Welcome', content: 'Keep your produce records up-to-date for better reach.' },
+        { title: 'Subsidy Alert', content: 'Check the latest subsidy details in the Schemes section.' }
+      ];
+    }
+    annList.innerHTML = messages.map(m=> `<div style="margin-bottom:8px;"><b>${escapeHtml(m.title)}</b><div style="color:var(--muted)">${escapeHtml(m.content)}</div></div>`).join('');
+
+    // EVENTS
+    let events = [];
+    if(eRes.status === 'fulfilled'){
+      try{ const j = await eRes.value.json(); events = Array.isArray(j)? j : []; } catch(e){ events = []; }
+    }
+    if(!events.length){
+      events = [
+        { name:'Soil Health Webinar', date: new Date(Date.now()+7*24*3600*1000).toISOString(), location:'Online', description:'Free webinar on soil testing' },
+        { name:'Local Farmers Market', date:new Date(Date.now()+3*24*3600*1000).toISOString(), location:'Town Square', description:'Stall bookings open' }
+      ];
+    }
+    eventsList.innerHTML = events.map(ev => `<div class="event-row"><div><b>${escapeHtml(ev.name)}</b><div style="color:var(--muted)">${new Date(ev.date).toLocaleDateString()} — ${escapeHtml(ev.location)}</div><div style="color:var(--muted)}">${escapeHtml(ev.description||'')}</div></div></div>`).join('');
+
+    // TRENDS
+    let trends = [];
+    if(tRes.status === 'fulfilled'){
+      try{ const j = await tRes.value.json(); trends = Array.isArray(j)? j : []; } catch(e){ trends = []; }
+    }
+    if(!trends.length){
+      trends = [
+        { name:'Tomato (High Demand)', avgPrice:120, image:'https://via.placeholder.com/320x200?text=Tomato', region:'Local' },
+        { name:'Organic Rice', avgPrice:300, image:'https://via.placeholder.com/320x200?text=Rice', region:'State' },
+        { name:'Sunflower Seeds', avgPrice:200, image:'https://via.placeholder.com/320x200?text=Seeds', region:'National' }
+      ];
+    }
+    trendingGrid.innerHTML = trends.map(t => `
+      <div class="trending-item card" style="padding:8px;">
+        <img src="${t.image||'https://via.placeholder.com/320x200'}" alt="${escapeHtml(t.name)}">
+        <div style="margin-top:8px;"><b>${escapeHtml(t.name)}</b></div>
+        <div style="color:var(--muted); font-size:13px;">Avg: ₹${Number(t.avgPrice||0)}</div>
+      </div>`).join('');
+
+    // BEST DEALS (choose top 3 trends as deals)
+    bestDeals.innerHTML = trends.slice(0,3).map(d => `<div class="deal" style="margin-bottom:8px;"><b>${escapeHtml(d.name)}</b><div style="color:var(--muted)">High demand in ${escapeHtml(d.region||'your area')}. Consider increasing supply.</div></div>`).join('');
+
+    // QUICK TIPS
+    const tips = [
+      'Rotate crops to maintain soil health.',
+      'Store grains in dry, ventilated places.',
+      'Use certified seeds for better yield.'
+    ];
+    tipsList.innerHTML = tips.map(t=> `<li>${escapeHtml(t)}</li>`).join('');
+
+  }catch(err){
+    annList.innerHTML = '<p>Error loading home data</p>';
+    eventsList.innerHTML = '<p>Error loading events</p>';
+    trendingGrid.innerHTML = '<p>Error loading trends</p>';
+    bestDeals.innerHTML = '<p>Error loading deals</p>';
+    tipsList.innerHTML = '<li>Error loading tips</li>';
+  }
+}
+
+/* --- PRODUCTS (original logic preserved) --- */
+async function loadProducts(){
+  const list = document.getElementById('productList');
+  list.innerHTML = 'Loading...';
+  try{
+    const res = await fetch(`/api/farmer/products/${farmerId}`);
+    const products = await res.json();
+    list.innerHTML = '';
+    if(!Array.isArray(products) || products.length===0){
+      list.innerHTML = '<p>No products yet.</p>'; return;
+    }
+    products.forEach(p=>{
+      const div = document.createElement('div');
+      div.className = 'card prod-card';
+      div.innerHTML = `
+        <img src="${p.images?.[0] || p.image || 'https://via.placeholder.com/400x300?text=Product'}" alt="${escapeHtml(p.name||'Product')}">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div><b>${escapeHtml(p.name||'')}</b><div style="color:var(--muted);font-size:13px">${escapeHtml(p.type||'')}</div></div>
+          <div style="text-align:right;"><div style="font-weight:800">₹${p.price||0}</div><div style="color:var(--muted);font-size:13px">Qty: ${p.quantity||0}</div></div>
+        </div>
+        <div style="margin-top:10px;">Status: <b>${escapeHtml(p.status||'')}</b></div>
+      `;
+      list.appendChild(div);
+    });
+  }catch(e){
+    // fallback sample
+    const demo = [
+      { name:'White Rice', type:'Rice', price:250, quantity:20, status:'Approved', images:['https://via.placeholder.com/400x300?text=Rice'] },
+      { name:'Organic Pulses', type:'Pulses', price:120, quantity:40, status:'Pending', images:['https://via.placeholder.com/400x300?text=Pulses'] }
+    ];
+    list.innerHTML = '';
+    demo.forEach(p=>{
+      const div = document.createElement('div');
+      div.className = 'card prod-card';
+      div.innerHTML = `
+        <img src="${p.images[0]}" alt="${escapeHtml(p.name)}">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div><b>${escapeHtml(p.name)}</b><div style="color:var(--muted);font-size:13px">${escapeHtml(p.type)}</div></div>
+          <div style="text-align:right;"><div style="font-weight:800">₹${p.price}</div><div style="color:var(--muted);font-size:13px">Qty: ${p.quantity}</div></div>
+        </div>
+        <div style="margin-top:10px;">Status: <b>${escapeHtml(p.status)}</b></div>
+      `;
+      list.appendChild(div);
+    });
+    showModal('error','Cannot load products from backend','Using demo product list.','https://assets5.lottiefiles.com/packages/lf20_QKRlP9.json');
+  }
+}
+
+/* Add Product (keep your existing logic & endpoint) */
+document.addEventListener('submit', async (e) => {
+  if(e.target && e.target.id === 'productForm'){
+    e.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const type = document.getElementById('type').value;
+    const price = Number(document.getElementById('price').value);
+    const quantity = Number(document.getElementById('quantity').value);
+    const images = document.getElementById('images').files;
+
+    const formData = new FormData();
+    formData.append('farmerId', farmerId);
+    formData.append('name', name);
+    formData.append('type', type);
+    formData.append('price', price);
+    formData.append('quantity', quantity);
+    for(let i=0;i<images.length;i++) formData.append('images', images[i]);
+
+    try{
+      const res = await fetch('/api/farmer/add-product', { method:'POST', body: formData });
+      const data = await res.json();
+      if(data.success){
+        showModal('success','Product added successfully!','', 'https://assets5.lottiefiles.com/packages/lf20_jbrw3hcz.json');
+        e.target.reset();
+        loadProducts();
+      } else {
+        showModal('error','Error adding product', data.message || 'Server returned an error','https://assets5.lottiefiles.com/packages/lf20_QKRlP9.json');
+      }
+    }catch(err){
+      showModal('error','Server error','Could not contact server','https://assets5.lottiefiles.com/packages/lf20_QKRlP9.json');
+    }
+  }
+});
+
+/* --- VISITS: show requests and allow approve/reject (with remarks) --- */
+async function loadVisits(){
+  const container = document.getElementById('visitRequestsContainer');
+  container.innerHTML = 'Loading...';
+  try{
+    const res = await fetch(`/api/farmer/visits/${farmerId}`);
+    const visits = await res.json();
+    container.innerHTML = '';
+    if(!Array.isArray(visits) || visits.length===0){
+      container.innerHTML = '<p>No visit requests.</p>';
+      return;
+    }
+    visits.forEach(v => {
+      const div = document.createElement('div');
+      div.className = 'visit-row';
+      div.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div><b>${escapeHtml(v.consumerId?.name || v.consumerName || 'Consumer')}</b><div style="color:var(--muted); font-size:13px">${new Date(v.requestedAt || v.placedAt).toLocaleString()}</div></div>
+          <div style="text-align:right"><div style="font-weight:800">${escapeHtml(v.status)}</div></div>
+        </div>
+        <div><b>Slot:</b> ${escapeHtml(v.slot || v.datetime || 'Not specified')}</div>
+        <div><b>Members:</b> ${escapeHtml(String(v.members || v.party || '1'))}</div>
+        <div><b>Notes:</b> ${escapeHtml(v.remarks || v.notes || '')}</div>
+        <div id="visit-action-${v._id || v.id}" class="visit-actions">
+          ${ v.status === 'Pending' ? `
+            <textarea id="visit-msg-${v._id || v.id}" placeholder="Optional message to consumer (on approval) or reason for rejection (required for reject)" style="min-height:70px;padding:8px;border-radius:8px;border:1px solid #eee;"></textarea>
+            <div style="display:flex; gap:8px;">
+              <button class="action" onclick="updateVisit('${v._id || v.id}','Approved')">Approve</button>
+              <button class="action" style="background:var(--danger)" onclick="updateVisit('${v._id || v.id}','Rejected')">Reject</button>
+            </div>
+          ` : `<div style="color:var(--muted)">Remarks: ${escapeHtml(v.remarks || '')}</div>`}
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }catch(e){
+    // fallback: use local visits stored in localStorage (for demo)
+    const visits = JSON.parse(localStorage.getItem('fc_visits') || '[]');
+    if(!visits.length){
+      container.innerHTML = '<p>Error loading visits and no demo visits available.</p>';
+      return;
+    }
+    container.innerHTML = '';
+    visits.forEach(v=>{
+      const div = document.createElement('div');
+      div.className = 'visit-row';
+      div.innerHTML = `<div style="display:flex; justify-content:space-between"><div><b>${escapeHtml(v.id)}</b><div style="color:var(--muted)">${new Date(v.placedAt).toLocaleString()}</div></div><div style="text-align:right"><div style="font-weight:800">${escapeHtml(v.status)}</div></div></div><div style="margin-top:6px;">When: ${escapeHtml(v.datetime || 'Not set')}</div><div style="margin-top:6px;">Notes: ${escapeHtml(v.notes||'')}</div><div style="margin-top:8px;">${ v.status==='Pending' ? `<button class="action" onclick="localApprove('${v.id}')">Approve (demo)</button> <button class="action" style="background:var(--danger)" onclick="localReject('${v.id}')">Reject (demo)</button>` : '' }</div>`;
+      container.appendChild(div);
+    });
+    showModal('warning','Could not fetch live visits','Using local demo visits (if any).','https://assets5.lottiefiles.com/packages/lf20_touohxv0.json');
+  }
+}
+
+/* Update visit — call same endpoint but require remarks on rejection and allow message on approve */
+async function updateVisit(id, status){
+  const textarea = document.getElementById(`visit-msg-${id}`);
+  const remarks = textarea ? textarea.value.trim() : '';
+  if(status === 'Rejected' && !remarks){
+    alert('Please enter remarks for rejection (required).');
+    return;
+  }
+  try{
+    const res = await fetch(`/api/farmer/update-visit/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status, remarks })
+    });
+    const data = await res.json();
+    if(data.success){
+      showModal('success', `Visit ${status}`, data.message || 'Updated successfully', 'https://assets5.lottiefiles.com/packages/lf20_jbrw3hcz.json');
+      loadVisits();
+    } else {
+      showModal('error', 'Update failed', data.message || 'Server error', 'https://assets5.lottiefiles.com/packages/lf20_QKRlP9.json');
+    }
+  }catch(e){
+    showModal('error', 'Server error', 'Could not update visit. Try again later.', 'https://assets5.lottiefiles.com/packages/lf20_QKRlP9.json');
+  }
+}
+
+/* Local demo approve/reject (used when backend not available) */
+function localApprove(id){
+  const visits = JSON.parse(localStorage.getItem('fc_visits') || '[]');
+  const idx = visits.findIndex(v=> v.id === id);
+  if(idx>-1){ visits[idx].status = 'Approved'; localStorage.setItem('fc_visits', JSON.stringify(visits)); loadVisits(); showModal('success','Visit approved (demo)'); }
+}
+function localReject(id){
+  const reason = prompt('Enter rejection remarks (demo):');
+  if(!reason) return;
+  const visits = JSON.parse(localStorage.getItem('fc_visits') || '[]');
+  const idx = visits.findIndex(v=> v.id === id);
+  if(idx>-1){ visits[idx].status = 'Rejected'; visits[idx].remarks = reason; localStorage.setItem('fc_visits', JSON.stringify(visits)); loadVisits(); showModal('success','Visit rejected (demo)'); }
+}
+
+/* create slot — UI only, store locally (keeps backend unchanged) */
+function createSlot(){
+  const date = document.getElementById('slot_date').value;
+  const start = document.getElementById('slot_start').value;
+  const end = document.getElementById('slot_end').value;
+  const desc = document.getElementById('slot_desc').value.trim();
+  if(!date || !start || !end){ showModal('warning','Please fill date and time for the slot'); return; }
+  const slot = { id: 'S'+Date.now(), date, start, end, desc };
+  const slots = JSON.parse(localStorage.getItem('fc_slots') || '[]');
+  slots.unshift(slot);
+  localStorage.setItem('fc_slots', JSON.stringify(slots));
+  renderSlots();
+  showModal('success','Slot created','Your slot is saved locally for demo.');
+}
+function renderSlots(){
+  const list = document.getElementById('slotsList');
+  const slots = JSON.parse(localStorage.getItem('fc_slots') || '[]');
+  list.innerHTML = slots.length ? slots.map(s=> `<div style="padding:8px;border-radius:8px;background:#fff;margin-bottom:6px;">${s.date} ${s.start} - ${s.end}<div style="color:var(--muted)">${escapeHtml(s.desc||'')}</div></div>`).join('') : '<div style="color:var(--muted)">No slots created.</div>';
+}
+
+/* --- ORDERS (same logic) --- */
+async function loadOrders(){
+  const wrap = document.getElementById('orderContainer');
+  wrap.innerHTML = 'Loading...';
+  try{
+    const res = await fetch(`/api/farmer/orders/${farmerId}`);
+    const data = await res.json();
+    wrap.innerHTML = '';
+    if(!Array.isArray(data) || data.length===0){ wrap.innerHTML = '<p>No orders yet</p>'; return; }
+    const table = document.createElement('div');
+    table.innerHTML = data.map(o => `<div class="card" style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;"><div><b>Order ${escapeHtml(o._id || o.id || '')}</b><div style="color:var(--muted)">${new Date(o.placedAt||o.createdAt||Date.now()).toLocaleString()}</div></div><div style="text-align:right"><div style="font-weight:800">₹${o.total || o.amount || 0}</div><div style="color:var(--muted)">${escapeHtml(o.status || '')}</div></div></div><div style="margin-top:10px;">Product: ${escapeHtml(o.productId?.name || o.productName || '')} <br> Qty: ${escapeHtml(String(o.quantity || o.qty || ''))}</div></div>`).join('');
+    wrap.appendChild(table);
+  }catch(e){
+    wrap.innerHTML = '<p>Error loading orders</p>';
+  }
+}
+
+/* --- PROFILE (same logic) --- */
+async function loadProfile(){
+  const wrap = document.getElementById('profileDetails');
+  wrap.innerHTML = 'Loading...';
+  try{
+    const res = await fetch(`/api/farmer/${farmerId}`);
+    const farmer = await res.json();
+    wrap.innerHTML = '';
+    if(!farmer) { wrap.innerHTML = '<p>No profile data</p>'; return; }
+    const keys = ['name','phone','dob','state','district','village','address'];
+    keys.forEach(k=>{
+      if(farmer[k]){
+        const div = document.createElement('div');
+        div.innerHTML = `<b>${k.toUpperCase()}:</b> ${escapeHtml(farmer[k])}`;
+        wrap.appendChild(div);
+      }
+    });
+  }catch(e){
+    wrap.innerHTML = '<p>Error loading profile</p>';
+  }
+}
+
+/* --- Utility functions --- */
+function escapeHtml(str){
+  if(!str) return '';
+  return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[s]);
+}
+function logout(){ localStorage.clear(); window.location.href = 'farmerlogin.html'; }
+
+/* --- init --- */
+(function init(){
+  loadHome();
+  loadProducts();
+  loadVisits();
+  loadOrders();
+  renderSlots();
+})();
+</script>
+</body>
+</html>

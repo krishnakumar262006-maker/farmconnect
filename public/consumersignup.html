@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Consumer Signup | Farm Connect</title>
+  <link rel="stylesheet" href="consumer.css">
+</head>
+<body>
+  <div class="form-container">
+    <h2>Consumer Signup</h2>
+    <form id="signupForm">
+      <input id="name" required placeholder="Full Name">
+      <input id="dob" type="date" required placeholder="Date of Birth">
+      <input id="phone" type="tel" pattern="[0-9]{10}" maxlength="10" required placeholder="Phone Number">
+      <input id="email" type="email" required placeholder="Email">
+      <select id="state" required>
+        <option value="">Select State</option>
+        <option value="Tamil Nadu">Tamil Nadu</option>
+        <option value="Kerala">Kerala</option>
+        <option value="Karnataka">Karnataka</option>
+        <option value="Maharashtra">Maharashtra</option>
+        <option value="Andhra Pradesh">Andhra Pradesh</option>
+      </select>
+      <select id="district" required>
+        <option value="">Select District</option>
+      </select>
+      <input id="password" type="password" required placeholder="Create Password">
+      <input id="confirm" type="password" required placeholder="Confirm Password">
+      <button type="submit">Sign Up</button>
+      <p id="msg"></p>
+    </form>
+  </div>
+
+  <script>
+    const stateSelect = document.getElementById('state');
+    const districtSelect = document.getElementById('district');
+    const msg = document.getElementById('msg');
+
+    const statesAndDistricts = {
+      "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai"],
+      "Kerala": ["Thiruvananthapuram", "Kochi", "Kozhikode"],
+      "Karnataka": ["Bengaluru", "Mysuru", "Mangalore"],
+      "Maharashtra": ["Mumbai", "Pune", "Nagpur"],
+      "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur"]
+    };
+
+    stateSelect.addEventListener('change', () => {
+      districtSelect.innerHTML = '<option value="">Select District</option>';
+      const selectedState = stateSelect.value;
+      if (statesAndDistricts[selectedState]) {
+        statesAndDistricts[selectedState].forEach(district => {
+          const opt = document.createElement('option');
+          opt.value = district;
+          opt.textContent = district;
+          districtSelect.appendChild(opt);
+        });
+      }
+    });
+
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const data = {
+        name: document.getElementById('name').value,
+        dob: document.getElementById('dob').value,
+        phone: document.getElementById('phone').value,
+        email: document.getElementById('email').value,
+        state: document.getElementById('state').value,
+        district: document.getElementById('district').value,
+        password: document.getElementById('password').value
+      };
+
+      const confirm = document.getElementById('confirm').value;
+
+      if (data.password !== confirm) {
+        msg.style.color = 'red';
+        msg.textContent = 'Passwords do not match!';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/consumer/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        if (res.ok && result.success) {
+          msg.style.color = 'green';
+          msg.textContent = 'Signup successful! Redirecting...';
+          setTimeout(() => { window.location.href = '/consumer/login'; }, 800);
+        } else {
+          msg.style.color = 'red';
+          msg.textContent = result.message || 'Signup failed';
+        }
+      } catch (err) {
+        msg.style.color = 'red';
+        msg.textContent = 'Server error. Please try again.';
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>

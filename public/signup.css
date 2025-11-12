@@ -1,0 +1,67 @@
+/* Backgrounds */
+body.farmer-bg {
+  background: url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee') no-repeat center center/cover;
+  height: 100vh;
+}
+
+body.consumer-bg {
+  background: url('https://images.unsplash.com/photo-1506806732259-39c2d0268443') no-repeat center center/cover;
+  height: 100vh;
+}
+
+/* Signup Container */
+.signup-container {
+  width: 350px;
+  margin: 100px auto;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+  text-align: center;
+}
+
+.signup-container h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+.signup-container input {
+  width: 90%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+.signup-container button {
+  width: 95%;
+  padding: 12px;
+  background: #4CAF50;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.signup-container button:hover {
+  background: #388E3C;
+}
+
+.signup-container p {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.signup-container a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.signup-container a:hover {
+  text-decoration: underline;
+}

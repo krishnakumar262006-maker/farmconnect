@@ -1,0 +1,35 @@
+body{font-family:Arial,Helvetica,sans-serif;background:#f2f7f2;margin:0}
+header{background:#2d6a4f;color:#fff;padding:12px;text-align:center}
+.form-container{max-width:420px;margin:60px auto;background:#fff;padding:20px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.08)}
+input,textarea,select,button{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:1px solid #ccc}
+button{background:#2d6a4f;color:#fff;border:none;font-weight:700;cursor:pointer}
+.captcha-row{display:flex;gap:10px;align-items:center}
+main{padding:20px}
+section{display:none}
+section.active{display:block}
+/* Default small header for all pages */
+.default-header {
+  padding: 15px 20px;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid #fff;
+}
+
+.logo-title-small {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* space between logo and text */
+}
+
+.small-logo {
+  width: 50px;   /* small logo size */
+  height: auto;
+  border-radius: 50%; /* keeps circular */
+}
+
+.default-header h1 {
+  font-size: 1.5em;  /* smaller than home page */
+  color: #fff;
+  margin: 0;
+}

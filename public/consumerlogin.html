@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Consumer Login | Farm Connect</title>
+  <link rel="stylesheet" href="consumer.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(120deg, #a8e063, #56ab2f);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+    .form-container {
+      background: #fff;
+      padding: 40px 35px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      width: 350px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 24px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+    input:focus {
+      border-color: #56ab2f;
+      outline: none;
+      box-shadow: 0 0 5px rgba(86,171,47,0.5);
+    }
+    .captcha-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .captcha-box {
+      background: #f3f3f3;
+      font-weight: bold;
+      letter-spacing: 2px;
+      font-size: 18px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      user-select: none;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #56ab2f;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 15px;
+    }
+    button:hover {
+      background-color: #469025;
+    }
+    p {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+    a {
+      color: #56ab2f;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    #msg {
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .refresh {
+      cursor: pointer;
+      color: #56ab2f;
+      font-size: 14px;
+      text-decoration: underline;
+      margin-left: 10px;
+    }
+    /* Google button container */
+    .google-btn-container {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Consumer Login</h2>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Password" required>
+
+      <div class="captcha-container">
+        <div class="captcha-box" id="captcha"></div>
+        <span class="refresh" id="refreshCaptcha">Refresh</span>
+      </div>
+      <input type="text" id="captchaInput" placeholder="Enter Captcha" required>
+
+      <button type="submit">Login</button>
+      <p>or</p>
+
+      <!-- 🌐 Google Sign-In Button -->
+      <div id="g_id_onload"
+           data-client_id="695369265506-2osjki5s52i1g1unkgc53rmac5cksko9.apps.googleusercontent.com"
+           data-context="signin"
+           data-ux_mode="popup"
+           data-callback="handleCredentialResponse"
+           data-auto_prompt="false">
+      </div>
+      <div class="g_id_signin"
+           data-type="standard"
+           data-size="large"
+           data-theme="outline"
+           data-shape="rectangular"
+           data-text="signin_with"
+           data-logo_alignment="left">
+      </div>
+
+      <p>New user? <a href="consumersignup.html">Sign up</a></p>
+      <div id="msg"></div>
+    </form>
+  </div>
+
+  <script>
+    // CAPTCHA
+    function generateCaptcha() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+      let captcha = "";
+      for (let i = 0; i < 6; i++) {
+        captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      document.getElementById("captcha").textContent = captcha;
+    }
+    generateCaptcha();
+    document.getElementById("refreshCaptcha").addEventListener("click", generateCaptcha);
+
+    // Normal Login
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const captchaInput = document.getElementById("captchaInput").value.trim();
+      const captcha = document.getElementById("captcha").textContent.trim();
+      const msgDiv = document.getElementById("msg");
+
+      if (captchaInput !== captcha) {
+        msgDiv.textContent = "Incorrect captcha. Please try again.";
+        msgDiv.style.color = "red";
+        generateCaptcha();
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/consumer/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.replace(data.redirect || "/consumer/dashboard");
+        } else {
+          msgDiv.textContent = data.message || "Invalid credentials!";
+          msgDiv.style.color = "red";
+        }
+      } catch (err) {
+        msgDiv.textContent = "Error during login. Please try again.";
+        msgDiv.style.color = "red";
+      }
+    });
+
+    // 🌐 Google Sign-In Callback
+    function handleCredentialResponse(response) {
+      const user = parseJwt(response.credential);
+      alert(`Welcome ${user.name}!`);
+      window.location.href = "consumer-dashboard.html"; 
+    }
+
+    // Decode Google JWT Token
+    function parseJwt(token) {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    }
+  </script>
+</body>
+</html>

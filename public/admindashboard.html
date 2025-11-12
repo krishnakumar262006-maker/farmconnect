@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin_Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <header class="site-header">
+    <div class="top-banner-small">
+      <span class="left-quote-small">உழவனே தெய்வம்!</span>
+      <span class="right-quote-small">விளைநிலமே கோயில்!!!</span>
+    </div>
+
+    <div class="logo-title-small">
+      <img src="logo.png" alt="Farm Connect Logo" class="small-logo">
+      <h1>Farm Connect</h1>
+    </div>
+  </header>
+
+  <style>
+    .modal { transition: all 0.3s ease; }
+    .modal.show { opacity: 1 !important; pointer-events: auto !important; }
+    .modal.hide { opacity: 0 !important; pointer-events: none !important; }
+
+    .top-banner-small { width: 100%; display: flex; justify-content: space-between; padding: 4px 20px; background-color: #f4f9f4; font-size: 0.9rem; font-weight: bold; color: #2e7d32; }
+    .left-quote-small { text-align: left; }
+    .right-quote-small { text-align: right; }
+    .site-header { padding: 10px 20px; background: rgba(0, 0, 0, 0.5); border-bottom: 2px solid #fff; }
+    .logo-title-small { display: flex; align-items: center; gap: 15px; }
+    .small-logo { width: 50px; height: auto; border-radius: 50%; }
+    .logo-title-small h1 { font-size: 1.5em; color: #fff; margin: 0; }
+
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .section.hidden { display: none; }
+    .card { transition: transform 0.2s, box-shadow 0.2s; }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
+
+    /* Table scroll inside modal */
+    .modal-table { max-height: 200px; overflow-y: auto; display: block; }
+    .modal-table table { width: 100%; border-collapse: collapse; }
+    .modal-table th, .modal-table td { border: 1px solid #ccc; padding: 6px; text-align: left; }
+  </style>
+</head>
+<body class="bg-gray-100">
+
+  <!-- Topbar -->
+  <header class="bg-green-600 text-white p-4 flex justify-between items-center shadow">
+    <h1 class="text-xl font-bold">🌱 FarmConnect - Admin Panel</h1>
+    <button id="logoutBtn" class="bg-red-500 px-4 py-1 rounded hover:bg-red-600">Logout</button>
+  </header>
+
+  <div class="flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow h-screen p-4 space-y-4">
+      <a href="#" data-section="dashboard" class="nav-link block text-gray-700 hover:text-green-600">📊 Dashboard</a>
+      <a href="#" data-section="farmers" class="nav-link block text-gray-700 hover:text-green-600">👨‍🌾 Farmers</a>
+      <a href="#" data-section="products" class="nav-link block text-gray-700 hover:text-green-600">🛒 Products</a>
+      <a href="#" data-section="consumers" class="nav-link block text-gray-700 hover:text-green-600">👥 Consumers</a>
+      <a href="#" data-section="reports" class="nav-link block text-gray-700 hover:text-green-600">📜 Reports</a>
+    </aside>
+
+    <!-- Main -->
+    <main id="mainContent" class="flex-1 p-6 overflow-y-auto">
+
+      <!-- Dashboard Section -->
+      <section id="dashboard" class="section">
+        <h2 class="text-2xl font-semibold mb-4">Dashboard Overview</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div class="bg-white shadow rounded-lg p-6 text-center card">
+            <h3>Total Farmers</h3>
+            <p id="farmerCount" class="text-2xl font-bold text-green-600">0</p>
+          </div>
+          <div class="bg-white shadow rounded-lg p-6 text-center card">
+            <h3>Total Consumers</h3>
+            <p id="consumerCount" class="text-2xl font-bold text-green-600">0</p>
+          </div>
+          <div class="bg-white shadow rounded-lg p-6 text-center card">
+            <h3>Pending Products</h3>
+            <p id="pendingProducts" class="text-2xl font-bold text-green-600">0</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Farmers Section -->
+      <section id="farmers" class="section hidden">
+        <h2 class="text-2xl font-semibold mb-4">All Farmers</h2>
+        <table class="w-full border-collapse bg-white shadow">
+          <thead class="bg-gray-200">
+            <tr>
+              <th class="p-2 border">Name</th>
+              <th class="p-2 border">Phone</th>
+              <th class="p-2 border">State</th>
+              <th class="p-2 border">District</th>
+              <th class="p-2 border">Rating</th>
+              <th class="p-2 border">Action</th>
+            </tr>
+          </thead>
+          <tbody id="farmerTable"></tbody>
+        </table>
+      </section>
+
+      <!-- Modal for Farmer Details -->
+      <div id="farmerModal" class="modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 pointer-events-none">
+        <div class="bg-white rounded-lg shadow-lg w-11/12 md:w-2/3 lg:w-1/2 p-6 transform transition-all scale-90">
+          <h3 class="text-xl font-semibold text-green-700 mb-2">Farmer Profile</h3>
+          <div id="modalContent" class="text-gray-700 mb-4"></div>
+          <div class="flex justify-end gap-3">
+            <button id="viewAuditBtn" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">View Audit</button>
+            <button id="viewProfileBtn" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">View Profile</button>
+            <button id="viewHistoryBtn" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">View History</button>
+            <button id="closeModal" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Close</button>
+          </div>
+          <div id="modalDetail" class="mt-4 text-gray-700"></div>
+        </div>
+      </div>
+
+      <!-- Products Section -->
+      <section id="products" class="section hidden">
+        <h2 class="text-2xl font-semibold mb-4">All Products</h2>
+        <table class="w-full border-collapse bg-white shadow">
+          <thead class="bg-gray-200">
+            <tr><th class="p-2 border">Product</th><th class="p-2 border">Farmer</th><th class="p-2 border">Price</th><th class="p-2 border">Status</th><th class="p-2 border">Action</th></tr>
+          </thead>
+          <tbody id="productTable"></tbody>
+        </table>
+      </section>
+
+      <!-- Consumers Section -->
+      <section id="consumers" class="section hidden">
+        <h2 class="text-2xl font-semibold mb-4">Consumers & Purchases</h2>
+        <table class="w-full border-collapse bg-white shadow">
+          <thead class="bg-gray-200">
+            <tr><th class="p-2 border">Name</th><th class="p-2 border">Email</th><th class="p-2 border">Purchased Items</th></tr>
+          </thead>
+          <tbody id="consumerTable"></tbody>
+        </table>
+      </section>
+
+      <!-- Reports Section -->
+      <section id="reports" class="section hidden">
+        <h2 class="text-2xl font-semibold mb-4">Reports & Issues</h2>
+        <div id="reportList" class="space-y-4"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    const modal = document.getElementById("farmerModal");
+    const modalContent = document.getElementById("modalContent");
+    const modalDetail = document.getElementById("modalDetail");
+    const closeModal = document.getElementById("closeModal");
+    const viewAuditBtn = document.getElementById("viewAuditBtn");
+    const viewProfileBtn = document.getElementById("viewProfileBtn");
+    const viewHistoryBtn = document.getElementById("viewHistoryBtn");
+
+    closeModal.addEventListener("click", () => {
+      modal.classList.remove("show");
+      modal.classList.add("hide");
+      modalDetail.innerHTML = "";
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem("isAdmin");
+      window.location.href = "adminlogin.html";
+    });
+
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('.section').forEach(sec => sec.classList.add('hidden'));
+        const section = link.getAttribute('data-section');
+        document.getElementById(section).classList.remove('hidden');
+      });
+    });
+
+    async function loadDashboard() {
+      try {
+        const farmerRes = await fetch('/api/admin/farmers');
+        const farmers = await farmerRes.json();
+        document.getElementById('farmerCount').innerText = farmers.length;
+
+        const consumerRes = await fetch('/api/admin/consumers');
+        const consumers = await consumerRes.json();
+        document.getElementById('consumerCount').innerText = consumers.length;
+
+        const productRes = await fetch('/api/admin/products');
+        const products = await productRes.json();
+        const pending = products.filter(p => p.status === "pending");
+        document.getElementById('pendingProducts').innerText = pending.length;
+
+        const farmerTable = document.getElementById('farmerTable');
+        farmerTable.innerHTML = farmers.map(f => `
+          <tr>
+            <td class="p-2 border">${f.name}</td>
+            <td class="p-2 border">${f.phone || 'N/A'}</td>
+            <td class="p-2 border">${f.state || 'N/A'}</td>
+            <td class="p-2 border">${f.district || 'N/A'}</td>
+            <td class="p-2 border text-yellow-500 font-bold">${f.rating || '⭐4.0'}</td>
+            <td class="p-2 border text-center">
+              <button onclick='openFarmerModal(${JSON.stringify(f)})'
+                class="text-blue-600 text-xl hover:scale-110 transition">👉</button>
+            </td>
+          </tr>
+        `).join("");
+
+        // Products
+        const productTable = document.getElementById('productTable');
+        productTable.innerHTML = products.map(p=>`
+          <tr>
+            <td class="p-2 border">${p.name}</td>
+            <td class="p-2 border">${p.farmerId?.name || 'Unknown'}</td>
+            <td class="p-2 border">₹${p.price}</td>
+            <td class="p-2 border">${p.status}</td>
+            <td class="p-2 border">
+              ${p.status==="pending" ? `
+                <button class="bg-green-500 text-white px-2 py-1 rounded" onclick="approveProduct('${p._id}')">Approve</button>
+                <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="rejectProduct('${p._id}')">Reject</button>
+              `: "✔"}
+            </td>
+          </tr>
+        `).join("");
+
+        const consumerTable = document.getElementById('consumerTable');
+        consumerTable.innerHTML = consumers.map(c=>`
+          <tr>
+            <td class="p-2 border">${c.name}</td>
+            <td class="p-2 border">${c.email}</td>
+            <td class="p-2 border">${(c.purchases||[]).map(p=>p.name).join(", ")}</td>
+          </tr>
+        `).join("");
+
+        const reportRes = await fetch('/api/admin/reports');
+        const reports = await reportRes.json();
+        const reportList = document.getElementById('reportList');
+        reportList.innerHTML = reports.map(r=>`
+          <div class="bg-white p-4 shadow rounded">
+            <p><b>${r.userType} (${r.userId?.name || 'Unknown'}):</b> ${r.message}</p>
+            <p class="text-sm text-gray-500">Date: ${new Date(r.createdAt).toLocaleString()}</p>
+          </div>
+        `).join("");
+
+      } catch (err) {
+        console.error("Error loading dashboard:", err);
+      }
+    }
+
+    async function approveProduct(id){
+      await fetch(`/api/admin/approve-product/${id}`,{method:"PUT"});
+      loadDashboard();
+    }
+
+    async function rejectProduct(id){
+      const remark = prompt("Enter rejection remark:");
+      await fetch(`/api/admin/reject-product/${id}`,{
+        method:"PUT",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({remark})
+      });
+      loadDashboard();
+    }
+
+    function openFarmerModal(farmer){
+      modal.classList.remove("hide");
+      modal.classList.add("show");
+      modalContent.innerHTML = `
+        <p><b>Name:</b> ${farmer.name}</p>
+        <p><b>Phone:</b> ${farmer.phone}</p>
+        <p><b>State:</b> ${farmer.state}</p>
+        <p><b>District:</b> ${farmer.district}</p>
+        <p><b>Rating:</b> ${farmer.rating || '⭐4.0'}</p>
+      `;
+      modalDetail.innerHTML = "";
+
+      viewAuditBtn.onclick = () => {
+        modalDetail.innerHTML = `
+          <h4 class="font-bold mb-1">Audit Records:</h4>
+          <div class="modal-table">
+            <table>
+              <tr><th>Date</th><th>Action</th></tr>
+              ${(farmer.audit||[]).map(a => `<tr><td>${a.date}</td><td>${a.action}</td></tr>`).join("") || "<tr><td colspan='2'>No audit records</td></tr>"}
+            </table>
+          </div>
+        `;
+      };
+
+      viewProfileBtn.onclick = () => {
+        modalDetail.innerHTML = `
+          <h4 class="font-bold mb-1">Full Profile:</h4>
+          <p><b>Email:</b> ${farmer.email || 'N/A'}</p>
+          <p><b>Phone:</b> ${farmer.phone || 'N/A'}</p>
+          <p><b>State:</b> ${farmer.state || 'N/A'}</p>
+          <p><b>District:</b> ${farmer.district || 'N/A'}</p>
+          <p><b>Rating:</b> ${farmer.rating || '⭐4.0'}</p>
+        `;
+      };
+
+      viewHistoryBtn.onclick = () => {
+        modalDetail.innerHTML = `
+          <h4 class="font-bold mb-1">Sales / Purchase History:</h4>
+          <div class="modal-table">
+            <table>
+              <tr><th>Product</th><th>Amount</th><th>Date</th></tr>
+              ${(farmer.sales||[]).map(s => `<tr><td>${s.product}</td><td>₹${s.amount}</td><td>${s.date}</td></tr>`).join("") || "<tr><td colspan='3'>No sales history</td></tr>"}
+            </table>
+          </div>
+        `;
+      };
+    }
+
+    // Initial load
+    loadDashboard();
+  </script>
+
+</body>
+</html>

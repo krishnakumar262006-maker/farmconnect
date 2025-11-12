@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Consumer Dashboard | Farm Connect</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    /* ========== Base / header / nav ========== */
+    :root {
+      --primary: #2874f0;
+      --accent: #ff9f00;
+      --danger: #e60000;
+      --bg: #f1f3f6;
+      --card: #ffffff;
+      --muted: #666;
+      --delivery-fee: 50;
+      --success: #0a8a34;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: #222;
+      -webkit-font-smoothing:antialiased;
+    }
+    header{
+      background: linear-gradient(90deg,var(--primary), #1f5bd6);
+      color: #fff;
+      padding: 10px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      position: sticky;
+      top:0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+    }
+    .logo { display:flex; gap:10px; align-items:center; }
+    .logo img{ width:44px; border-radius:8px; background:#fff; padding:3px;}
+    .logo h1{ margin:0; font-size:20px; letter-spacing:0.3px;}
+    nav{ display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+    nav button{
+      background:none;border:none;color:white;padding:8px 10px;font-weight:700;cursor:pointer;border-radius:6px;
+      transition: background .15s;
+    }
+    nav button:hover{ background: rgba(255,255,255,0.08); }
+    .signout-btn{ background:#ff4d4d;border:none;padding:8px 12px;border-radius:8px;color:white; cursor:pointer; font-weight:800;}
+    main{ padding:18px; max-width:1200px; margin:0 auto; }
+
+    #message {
+      text-align:center;
+      min-height:26px;
+      font-weight:700;
+      color:var(--primary);
+      margin-bottom:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2));
+      padding:8px;
+      border-radius:8px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    section { display:none; animation: fadeIn .25s ease-in-out; }
+    section.active { display:block; }
+    @keyframes fadeIn { from {opacity:0; transform:translateY(6px)} to {opacity:1; transform:none} }
+
+    .banner{
+      background: url('https://img.freepik.com/free-photo/agriculture-field-with-fresh-green-grass-against-blue-sky_181624-15852.jpg') center/cover no-repeat;
+      height:200px;border-radius:10px;color:white;display:flex;align-items:center;justify-content:space-between;padding:20px;font-size:20px;font-weight:700;text-shadow:2px 2px 6px rgba(0,0,0,0.5)
+    }
+
+    /* news slider */
+    .news-slider { width:100%; display:flex; gap:12px; align-items:center; }
+    .news-carousel { flex:1; overflow:hidden; border-radius:8px; background:linear-gradient(90deg,#fff,#fbfbfb); padding:8px; box-shadow:0 3px 8px rgba(0,0,0,0.04); }
+    .news-track { display:flex; transition: transform 0.5s ease; gap:8px; }
+    .news-item { min-width:320px; background: #fff; padding:12px; border-radius:8px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+    .news-item h4 { margin:0 0 6px; font-size:15px; color:var(--primary); }
+    .news-controls { display:flex; gap:8px; align-items:center; margin-left:12px; }
+    .news-controls button { background:var(--primary); color:#fff; border:none; padding:6px 8px; border-radius:6px; cursor:pointer; }
+
+    /* ========== category & product grid ========== */
+    .category-bar{ display:flex; gap:10px; flex-wrap:wrap; margin:16px 0; }
+    .category-bar button{ background:var(--card); border:1px solid var(--primary); color:var(--primary); padding:6px 12px; border-radius:20px; cursor:pointer; font-weight:700;}
+    .product-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:14px; }
+    .product-card{
+      background:var(--card); padding:12px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,0.04); text-align:center;
+    }
+    .product-card img{ width:100%; height:150px; object-fit:cover; border-radius:8px; margin-bottom:8px; }
+    .product-card h3{ margin:6px 0 4px; font-size:16px;}
+    .product-card p{ margin:4px 0; color:var(--muted); font-size:14px;}
+    .product-card .price{ color:#222; font-weight:800; margin-top:6px; }
+    .product-card button{ background:var(--accent); border:none; color:white; padding:8px 10px; border-radius:8px; cursor:pointer; font-weight:800; margin-top:8px;}
+    .qty-controls{ display:flex; justify-content:center; gap:8px; align-items:center; margin-top:8px; }
+    .qty-controls button{ background:var(--primary); border:none; color:#fff; width:34px;height:34px;border-radius:50%; cursor:pointer; font-weight:700; }
+
+    /* ========== Cart layout ========== */
+    .cart-layout{ display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start;}
+    .cart-items{ flex:1; min-width:280px; }
+    .cart-summary-card{ width:320px; background:var(--card); padding:14px; border-radius:10px; box-shadow: 0 3px 8px rgba(0,0,0,0.06); align-self:flex-start;}
+    .cart-row{ display:flex; gap:10px; align-items:center; margin-bottom:10px; background:var(--card); padding:10px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.04);}
+    .cart-row img{ width:80px; height:80px; object-fit:cover; border-radius:8px; }
+    .cart-row .meta{ flex:1; }
+    .cart-row .meta h4{ margin:0 0 6px; font-size:15px; }
+    .cart-row .meta small{ color:var(--muted); display:block; margin-bottom:8px; }
+    .cart-row .meta .price{ font-weight:800; }
+
+    .btn-primary{ background:var(--primary); color:white; padding:10px 12px; border:none; border-radius:10px; cursor:pointer; width:100%; font-weight:800; }
+    .btn-outline{ background:transparent; border:1px solid var(--primary); color:var(--primary); padding:8px 10px; border-radius:8px; cursor:pointer; font-weight:700; }
+
+    /* coupon input */
+    .coupon-row{ display:flex; gap:8px; margin-top:12px; }
+    .coupon-row input{ flex:1; padding:8px 10px; border-radius:8px; border:1px solid #ddd; }
+
+    /* ========== forms & review & profile ========== */
+    .form-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+    label{ display:block; font-size:13px; margin-bottom:6px; color:#333; }
+    input[type="text"], input[type="tel"], input[type="date"], input[type="time"], textarea, select { width:100%; padding:8px 10px; border-radius:6px; border:1px solid #ddd; font-size:14px; }
+    textarea{ resize:vertical; min-height:80px; }
+
+    .order-review { display:flex; gap:18px; flex-wrap:wrap; }
+    .review-left{ flex:1; min-width:300px; }
+    .review-right{ width:360px; background:var(--card); padding:14px; border-radius:10px; box-shadow:0 3px 8px rgba(0,0,0,0.06); }
+
+    .section-title{ font-size:18px; margin-bottom:10px; font-weight:800; }
+
+    /* payment options */
+    .payments { display:grid; gap:10px; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); }
+    .payment-option{ background:var(--card); padding:10px; border-radius:8px; text-align:center; cursor:pointer; border:1px solid transparent; }
+    .payment-option.selected{ border-color:var(--primary); box-shadow:0 4px 12px rgba(40,116,240,0.08); }
+    .payment-option img{ height:28px; display:block; margin:6px auto; }
+    .muted-note{ color:var(--muted); font-size:13px; }
+
+    /* advice thread */
+    .thread { background:var(--card); padding:10px; border-radius:8px; box-shadow:0 3px 8px rgba(0,0,0,0.04); max-height:320px; overflow:auto; }
+    .message { margin-bottom:10px; padding:8px; border-radius:8px; }
+    .message.me { background: linear-gradient(90deg,#e6f7ff,#fff); align-self:flex-end; }
+    .message.farmer { background: linear-gradient(90deg,#fff9e6,#fff); }
+
+    /* small responsive niceties */
+    @media (max-width:900px){
+      .cart-summary-card{ width:100%;}
+      .review-right{ width:100%;}
+    }
+    footer{ text-align:center; padding:16px; margin-top:30px; color:#666; font-size:14px;}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      
+      <img src="logo.png" class="small-logo" alt="logo">
+      <h1>Farm Connect</h1>
+    </div>
+
+    <nav>
+      <button onclick="show('home')">Home</button>
+      <button onclick="show('products')">Products</button>
+      <button onclick="show('cart')">Cart (<span id="cartCount">0</span>)</button>
+      <button onclick="show('orders')">Orders</button>
+      <button onclick="show('advice')">Advice</button>
+      <button onclick="show('visits')">Farm Visits</button>
+      <button onclick="show('profile')">My Profile</button>
+      <button class="signout-btn" onclick="signOut()">Sign Out</button>
+    </nav>
+  </header>
+
+  <main>
+    <div id="message"></div>
+
+    <!-- HOME -->
+    <section id="home" class="active">
+      <div class="banner">
+        <div>
+          Welcome to Farm Connect — buy direct from farmers
+          <div style="font-size:12px; font-weight:600; margin-top:6px; color:#fffbe6">உழவனே தெய்வம்! விளைநிலமே கோயில்!!!</div>
+        </div>
+        <div style="max-width:520px;">
+          <div class="news-slider">
+            <div class="news-carousel">
+              <div id="newsTrack" class="news-track"></div>
+            </div>
+            <div class="news-controls">
+              <button onclick="prevNews()">‹</button>
+              <button onclick="nextNews()">›</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px; display:flex; gap:12px; align-items:center;">
+        <div style="flex:1;">
+          <h3 style="margin:0 0 6px;">Today's Highlights</h3>
+          <p style="margin:0;color:var(--muted)">Fresh arrivals and farmer stories — explore products and request a farm visit to learn more.</p>
+        </div>
+        <div>
+          <button class="btn-primary" onclick="show('products')">Shop Now</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section id="products">
+      <h2 class="section-title">All Products</h2>
+      <div class="category-bar">
+        <button onclick="filterCategory('all')">All</button>
+        <button onclick="filterCategory('rice')">Rice</button>
+        <button onclick="filterCategory('pulses')">Pulses</button>
+        <button onclick="filterCategory('oils')">Oils</button>
+        <button onclick="filterCategory('seeds')">Seeds</button>
+        <button onclick="filterCategory('spices')">Spices</button>
+        <button onclick="filterCategory('fruits')">Fruits</button>
+        <button onclick="filterCategory('vegetables')">Vegetables</button>
+      </div>
+
+      <div id="productsGrid" class="product-grid"></div>
+    </section>
+
+    <!-- CART -->
+    <section id="cart">
+      <h2 class="section-title">My Cart</h2>
+      <div class="cart-layout">
+        <div class="cart-items" id="cartItems"></div>
+
+        <div class="cart-summary-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <strong>Order Summary</strong>
+            <small class="muted-note" id="summaryItems">0 items</small>
+          </div>
+
+          <div style="margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between;"><span>MRP Total</span><strong id="mrpTotal">₹0</strong></div>
+            <div style="display:flex; justify-content:space-between;"><span>Product Discount</span><strong id="productDiscount">-₹0</strong></div>
+            <div style="display:flex; justify-content:space-between;"><span>Coupon Discount</span><strong id="couponDiscount">-₹0</strong></div>
+            <div style="display:flex; justify-content:space-between;"><span>Delivery Fees</span><strong id="deliveryFee">₹50</strong></div>
+            <hr style="margin:10px 0" />
+            <div style="display:flex; justify-content:space-between; font-size:18px;"><span>Total</span><strong id="grandTotal">₹0</strong></div>
+          </div>
+
+          <div style="margin-top:12px;">
+            <div class="coupon-row">
+              <input id="couponInput" placeholder="Apply coupon (e.g., PONGAL50)" />
+              <button class="btn-outline" onclick="applyCoupon()">Apply</button>
+            </div>
+            <div style="margin-top:8px;">
+              <button class="btn-primary" onclick="openAddressForm()">Place Order</button>
+              <button class="btn-outline" style="margin-top:8px" onclick="show('products')">Continue Shopping</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADDRESS FORM (modal-like section) -->
+    <section id="addressForm" style="padding-top:8px;">
+      <h2 class="section-title">Delivery Address</h2>
+      <div style="max-width:900px;">
+        <div class="form-grid">
+          <div>
+            <label>Receiver's Name</label>
+            <input type="text" id="addr_name" placeholder="Full name" />
+          </div>
+          <div>
+            <label>Receiver's Phone</label>
+            <input type="tel" id="addr_phone" placeholder="10-digit mobile" />
+          </div>
+          <div>
+            <label>Door / Floor / Flat No</label>
+            <input type="text" id="addr_door" placeholder="Door no, floor no" />
+          </div>
+          <div>
+            <label>Building / Apartment</label>
+            <input type="text" id="addr_building" placeholder="Building or apartment name" />
+          </div>
+          <div style="grid-column:1 / -1;">
+            <label>Address (street / area)</label>
+            <textarea id="addr_line" placeholder="Street name, locality, etc."></textarea>
+          </div>
+          <div>
+            <label>Landmark</label>
+            <input type="text" id="addr_landmark" placeholder="Nearby landmark (optional)" />
+          </div>
+          <div>
+            <label>Google Maps Embed URL (optional)</label>
+            <input type="text" id="addr_map" placeholder="Paste google maps embed URL (iframe src) - optional" />
+          </div>
+        </div>
+
+        <div style="margin-top:12px; display:flex; gap:10px;">
+          <button class="btn-primary" onclick="saveAddressProceed()">Save & Proceed</button>
+          <button class="btn-outline" onclick="show('cart')">Back to Cart</button>
+        </div>
+
+        <p class="muted-note" style="margin-top:8px;">
+          Tip: If you want an interactive map, paste the iframe src (from Google Maps -> share -> embed map -> copy src). Otherwise leave blank.
+        </p>
+      </div>
+    </section>
+
+    <!-- ORDER REVIEW -->
+    <section id="orderReview">
+      <h2 class="section-title">Order Review</h2>
+      <div class="order-review">
+        <div class="review-left">
+          <div style="background:var(--card); padding:12px; border-radius:10px; box-shadow:0 3px 8px rgba(0,0,0,0.06);">
+            <h3 style="margin:0 0 8px;">Delivery Address</h3>
+            <div id="reviewAddress"></div>
+            <div id="mapPreview" style="margin-top:10px;"></div>
+          </div>
+
+          <div style="margin-top:12px;">
+            <h3 style="margin:0 0 8px;">Basket</h3>
+            <div id="reviewBasket" style="display:flex; flex-direction:column; gap:8px;"></div>
+          </div>
+        </div>
+
+        <div class="review-right">
+          <h3 style="margin-top:0;">Payment Details</h3>
+          <div style="display:flex; justify-content:space-between;"><span>MRP Total</span><strong id="rv_mrp">₹0</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span>Product Discount</span><strong id="rv_disc">-₹0</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span>Coupon Discount</span><strong id="rv_coupon">-₹0</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span>Delivery Fee</span><strong id="rv_delivery">₹50</strong></div>
+          <hr style="margin:10px 0" />
+          <div style="display:flex; justify-content:space-between; font-size:18px;"><span>Total</span><strong id="rv_total">₹0</strong></div>
+
+          <div style="margin-top:12px;">
+            <button class="btn-primary" onclick="show('payment')">Choose Payment</button>
+            <button class="btn-outline" style="margin-top:8px;" onclick="show('cart')">Edit Cart</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAYMENT -->
+    <section id="payment">
+      <h2 class="section-title">Choose Payment Method</h2>
+
+      <div style="display:flex; gap:18px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:320px;">
+          <p class="muted-note">UPI</p>
+          <div class="payments" id="paymentsUPI">
+            <div class="payment-option" data-method="upi" data-provider="gpay" onclick="selectPayment(this)">
+              Google Pay<br/><small>UPI</small>
+            </div>
+            <div class="payment-option" data-method="upi" data-provider="paytm" onclick="selectPayment(this)">
+              Paytm<br/><small>UPI</small>
+            </div>
+            <div class="payment-option" data-method="upi" data-provider="phonepe" onclick="selectPayment(this)">
+              PhonePe<br/><small>UPI</small>
+            </div>
+            <div class="payment-option" data-method="upi" data-provider="bhim" onclick="selectPayment(this)">
+              BHIM<br/><small>UPI</small>
+            </div>
+          </div>
+
+          <p class="muted-note" style="margin-top:12px;">Card</p>
+          <div class="payments" id="paymentsCard">
+            <div class="payment-option" data-method="card" onclick="selectPayment(this)">Visa / Master</div>
+            <div class="payment-option" data-method="card" onclick="selectPayment(this)">RuPay</div>
+          </div>
+
+          <p class="muted-note" style="margin-top:12px;">Net Banking</p>
+          <div class="payments" id="paymentsNB">
+            <div class="payment-option" data-method="netbanking" data-bank="HDFC" onclick="selectPayment(this)">HDFC</div>
+            <div class="payment-option" data-method="netbanking" data-bank="SBI" onclick="selectPayment(this)">SBI</div>
+            <div class="payment-option" data-method="netbanking" data-bank="ICICI" onclick="selectPayment(this)">ICICI</div>
+            <div class="payment-option" data-method="netbanking" data-bank="AXIS" onclick="selectPayment(this)">AXIS</div>
+          </div>
+
+          <p class="muted-note" style="margin-top:12px;">Other</p>
+          <div class="payments">
+            <div class="payment-option" data-method="cod" onclick="selectPayment(this)">Cash on Delivery</div>
+          </div>
+        </div>
+
+        <div style="width:360px;">
+          <div style="background:var(--card); padding:12px; border-radius:10px; box-shadow:0 3px 8px rgba(0,0,0,0.06);">
+            <h3 style="margin-top:0;">Order Summary</h3>
+            <div style="display:flex; justify-content:space-between;"><small>Items</small><strong id="pay_items">0</strong></div>
+            <div style="display:flex; justify-content:space-between;"><small>Amount</small><strong id="pay_amount">₹0</strong></div>
+            <div style="display:flex; justify-content:space-between;"><small>Coupon</small><strong id="pay_coupon">-₹0</strong></div>
+            <div style="display:flex; justify-content:space-between;"><small>Delivery</small><strong>₹50</strong></div>
+            <hr />
+            <div style="display:flex; justify-content:space-between;"><strong>Total</strong><strong id="pay_total">₹0</strong></div>
+
+            <div style="margin-top:12px;">
+              <button class="btn-primary" onclick="proceedToPayment()">Proceed to Payment</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ORDERS -->
+    <section id="orders">
+      <h2 class="section-title">My Orders</h2>
+      <div id="ordersList"></div>
+    </section>
+
+    <!-- ADVICE -->
+    <section id="advice">
+      <h2 class="section-title">Advice & Tips</h2>
+      <p>Ask for farming tips, seed care, storage ideas and more. Select a registered farmer and chat (you can upload an image with your question).</p>
+
+      <div style="margin-top:12px; display:flex; gap:12px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:320px;">
+          <label>Select Farmer</label>
+          <select id="advice_farmer" onchange="loadThreadForFarmer(this.value)"></select>
+
+          <div style="margin-top:8px;">
+            <div class="thread" id="adviceThread"></div>
+          </div>
+
+          <div style="margin-top:8px;">
+            <textarea id="advice_message" placeholder="Ask a question..." style="width:100%; min-height:80px;"></textarea>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+              <input type="file" id="advice_image" accept="image/*" />
+              <button class="btn-primary" onclick="sendAdviceMessage()">Send</button>
+            </div>
+            <div id="advicePreview" style="margin-top:8px;"></div>
+          </div>
+        </div>
+
+        <div style="width:320px;">
+          <div style="background:var(--card); padding:12px; border-radius:10px; box-shadow:0 3px 8px rgba(0,0,0,0.06);">
+            <h3 style="margin-top:0;">Registered Farmers</h3>
+            <div id="farmersList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FARM VISITS -->
+    <section id="visits">
+      <h2 class="section-title">Farm Visits</h2>
+      <p>Request farm visits from farmers to inspect products or learn farming practices.</p>
+
+      <div style="margin-top:12px; display:grid; grid-template-columns:1fr 360px; gap:12px;">
+        <div>
+          <label>Select Farmer</label>
+          <select id="visit_farmer">
+            <option value="">Any nearby farmer</option>
+          </select>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;">
+            <div>
+              <label>Preferred Date</label>
+              <input type="date" id="visit_date" />
+            </div>
+            <div>
+              <label>Preferred Time</label>
+              <input type="time" id="visit_time" />
+            </div>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label>How many members?</label>
+            <input type="text" id="visit_members" placeholder="e.g., 2" />
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;">
+            <div>
+              <label>Accommodation needed?</label>
+              <select id="visit_accom">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </div>
+            <div>
+              <label>Food required?</label>
+              <select id="visit_food">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label>Any notes</label>
+            <textarea id="visit_notes" placeholder="Special requests or notes"></textarea>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label><input type="checkbox" id="visit_tnc" /> I agree to the farm's terms & conditions</label>
+          </div>
+
+          <div style="margin-top:8px;">
+            <button class="btn-primary" onclick="requestVisit()">Request Visit</button>
+            <button class="btn-outline" onclick="show('orders')">My Requests</button>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="margin-top:0;">My Visit Requests</h3>
+          <div id="myVisitRequests"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="profile">
+      <h2 class="section-title">My Profile</h2>
+      <div style="max-width:720px;">
+        <div class="form-grid">
+          <div>
+            <label>Your Name</label>
+            <input type="text" id="user_name" placeholder="Full name" />
+          </div>
+          <div>
+            <label>Phone</label>
+            <input type="tel" id="user_phone" placeholder="10-digit mobile" />
+          </div>
+          <div style="grid-column:1 / -1;">
+            <label>Default Address (one-line)</label>
+            <textarea id="user_address" placeholder="Door, building, street, area, landmark"></textarea>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <button class="btn-primary" onclick="saveProfile()">Save Profile</button>
+          <button class="btn-outline" onclick="show('home')">Back</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © 2025 Farm Connect | Designed by <strong>Krishna</strong>
+  </footer>
+
+  <script>
+    // -------------------------
+    // Utilities & state
+    // -------------------------
+    const msgEl = document.getElementById('message');
+    let msgTimeout = null;
+    function showMessage(text, color = 'var(--primary)') {
+      if(msgTimeout) clearTimeout(msgTimeout);
+      msgEl.textContent = text;
+      msgEl.style.color = color;
+      msgTimeout = setTimeout(()=> { if(msgEl.textContent===text) msgEl.textContent=''; }, 4000);
+    }
+
+    function show(id) {
+      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
+      if (id === 'cart') renderCart();
+      if (id === 'orders') renderOrders();
+      if (id === 'products') renderProducts();
+      if (id === 'advice') { renderProfileQuick(); populateFarmersDropdowns(); loadFarmersList(); }
+      if (id === 'visits') { populateFarmersDropdowns(); renderVisitRequests(); }
+      if (id === 'profile') loadProfileToForm();
+    }
+
+    function signOut(){
+      showMessage('Signed out successfully!', 'green');
+      setTimeout(()=>{ window.location.href = '/consumer/login'; }, 900);
+    }
+
+    // localStorage keys
+    const CART_KEY = 'fc_cart';
+    const ORDERS_KEY = 'fc_orders';
+    const USER_KEY = 'fc_user';
+    const VISITS_KEY = 'fc_visits';
+    const ADVICE_KEY = 'fc_advice_threads';
+
+    function readCart(){ return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); }
+    function writeCart(c){ localStorage.setItem(CART_KEY, JSON.stringify(c)); updateCartCount(); }
+    function readOrders(){ return JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]'); }
+    function writeOrders(o){ localStorage.setItem(ORDERS_KEY, JSON.stringify(o)); }
+    function readVisits(){ return JSON.parse(localStorage.getItem(VISITS_KEY) || '[]'); }
+    function writeVisits(v){ localStorage.setItem(VISITS_KEY, JSON.stringify(v)); }
+
+    function updateCartCount(){
+      const cart = readCart();
+      const count = cart.reduce((s,i)=>s + (i.qty||0), 0);
+      document.getElementById('cartCount').textContent = count;
+    }
+    updateCartCount();
+
+    // -------------------------
+    // Products - load from backend (unchanged logic but with fallback sample data)
+    // -------------------------
+    let allProducts = [];
+    let currentProducts = [];
+
+    async function renderProducts(){
+      const grid = document.getElementById('productsGrid');
+      if(!allProducts.length){
+        try{
+          const res = await fetch('/api/consumer/products');
+          const data = await res.json();
+          allProducts = (Array.isArray(data) ? data : []).filter(p => p.status === 'approved');
+          if(allProducts.length === 0 && Array.isArray(data)) allProducts = data;
+        }catch(e){
+          console.error('load products error', e);
+          // fallback sample products for demo
+          allProducts = [
+            {_id:'p1', name:'White Rice (5kg)', type:'rice', price:250, image:'https://via.placeholder.com/400x300?text=Rice', status:'approved'},
+            {_id:'p2', name:'Organic Pulses (1kg)', type:'pulses', price:120, image:'https://via.placeholder.com/400x300?text=Pulses', status:'approved'},
+            {_id:'p3', name:'Mustard Oil (1L)', type:'oils', price:180, image:'https://via.placeholder.com/400x300?text=Oil', status:'approved'},
+          ];
+          showMessage('Cannot load products from backend. Using demo data.', 'red');
+        }
+      }
+      currentProducts = [...allProducts];
+      grid.innerHTML = '';
+      if(!currentProducts.length){ grid.innerHTML = '<p>No products available.</p>'; return; }
+      const cart = readCart();
+      currentProducts.forEach(p => {
+        const inCart = cart.find(i=> i.id === p._id);
+        const div = document.createElement('div');
+        div.className = 'product-card';
+        div.innerHTML = `
+          <img src="${p.image || 'https://via.placeholder.com/300x200'}" alt="${escapeHtml(p.name||'Product')}">
+          <h3>${escapeHtml(p.name||'')}</h3>
+          <p>${escapeHtml(p.type||'')}</p>
+          <div class="price">₹${(p.price||0).toFixed(0)}</div>
+          <div id="action-${p._id}">
+            ${ inCart ? `<div class="qty-controls">
+                <button onclick="updateQty('${p._id}', -1)">-</button>
+                <span id="qty-${p._id}">${inCart.qty}</span>
+                <button onclick="updateQty('${p._id}', 1)">+</button>
+               </div>` :
+               `<button onclick="addToCart('${p._id}')">Add to Cart</button>`}
+          </div>
+        `;
+        grid.appendChild(div);
+      });
+    }
+
+    function filterCategory(category){
+      if(!allProducts.length) renderProducts();
+      if(category === 'all') currentProducts = [...allProducts];
+      else currentProducts = allProducts.filter(p => (p.type||'').toLowerCase() === category.toLowerCase());
+      const grid = document.getElementById('productsGrid');
+      grid.innerHTML = '';
+      if(!currentProducts.length){ grid.innerHTML = '<p>No products in this category.</p>'; return; }
+      const cart = readCart();
+      currentProducts.forEach(p => {
+        const inCart = cart.find(i=> i.id === p._id);
+        const div = document.createElement('div');
+        div.className = 'product-card';
+        div.innerHTML = `
+          <img src="${p.image || 'https://via.placeholder.com/300x200'}" alt="${escapeHtml(p.name||'Product')}">
+          <h3>${escapeHtml(p.name||'')}</h3>
+          <p>${escapeHtml(p.type||'')}</p>
+          <div class="price">₹${(p.price||0).toFixed(0)}</div>
+          <div id="action-${p._id}">
+            ${ inCart ? `<div class="qty-controls">
+                <button onclick="updateQty('${p._id}', -1)">-</button>
+                <span id="qty-${p._id}">${inCart.qty}</span>
+                <button onclick="updateQty('${p._id}', 1)">+</button>
+               </div>` :
+               `<button onclick="addToCart('${p._id}')">Add to Cart</button>`}
+          </div>
+        `;
+        grid.appendChild(div);
+      });
+    }
+
+    // -------------------------
+    // Cart functions
+    // -------------------------
+    function addToCart(productId){
+      const cart = readCart();
+      const existing = cart.find(i=> i.id === productId);
+      if(existing){ existing.qty += 1; }
+      else { cart.push({ id: productId, qty:1 }); }
+      writeCart(cart);
+      showMessage('Added to cart!', 'green');
+      renderProducts();
+      renderCart();
+    }
+
+    function updateQty(productId, delta){
+      const cart = readCart();
+      const item = cart.find(i=> i.id === productId);
+      if(!item) return;
+      item.qty += delta;
+      if(item.qty <= 0){
+        const idx = cart.findIndex(i=> i.id === productId);
+        if(idx>-1) cart.splice(idx,1);
+        showMessage('Item removed from cart', 'red');
+      } else {
+        showMessage('Cart updated', 'green');
+      }
+      writeCart(cart);
+      renderProducts();
+      renderCart();
+    }
+
+    // Coupons
+    const DEFAULT_COUPONS = {
+      'PONGAL50': { code:'PONGAL50', amount:50, desc:'Pongal offer' },
+      'NEWUSER50': { code:'NEWUSER50', amount:50, desc:'Welcome offer' }
+    };
+
+    function applyCoupon(){
+      const code = (document.getElementById('couponInput').value||'').trim().toUpperCase();
+      if(!code){ showMessage('Enter coupon code', 'red'); return; }
+      const coupon = DEFAULT_COUPONS[code];
+      if(!coupon){ showMessage('Invalid coupon', 'red'); return; }
+      sessionStorage.setItem('fc_coupon', JSON.stringify(coupon));
+      showMessage(`Coupon ${coupon.code} applied - ₹${coupon.amount} off`, 'green');
+      renderCart(); // refresh totals
+    }
+
+    function clearCoupon(){
+      sessionStorage.removeItem('fc_coupon');
+      document.getElementById('couponInput').value = '';
+      renderCart();
+    }
+
+    function getAppliedCoupon(){
+      return JSON.parse(sessionStorage.getItem('fc_coupon') || 'null');
+    }
+
+    function renderCart(){
+      const cartDiv = document.getElementById('cartItems');
+      cartDiv.innerHTML = '';
+      const cart = readCart();
+      if(!cart.length){ cartDiv.innerHTML = '<p>Your cart is empty.</p>'; updateSummary(0,0,0); return; }
+
+      // Build items
+      let mrpTotal = 0, productDiscount = 0;
+      cart.forEach(item => {
+        const product = allProducts.find(p=> p._id === item.id) || { name:'Unknown', price:0, image:'' };
+        const itemTotal = (product.price || 0) * item.qty;
+        mrpTotal += itemTotal;
+        // productDiscount currently 0 (can be changed to read coupon or product.off)
+        const row = document.createElement('div');
+        row.className = 'cart-row';
+        row.innerHTML = `
+          <img src="${product.image || 'https://via.placeholder.com/120'}" alt="${escapeHtml(product.name||'')}" />
+          <div class="meta">
+            <h4>${escapeHtml(product.name||'')}</h4>
+            <small>₹${(product.price||0).toFixed(0)} x ${item.qty}</small>
+            <div style="margin-top:8px;">
+              <button class="btn-outline" onclick="updateQty('${item.id}', -1)">-</button>
+              <span style="margin:0 8px; font-weight:800;">${item.qty}</span>
+              <button class="btn-primary" style="padding:6px 10px;" onclick="updateQty('${item.id}', 1)">+</button>
+            </div>
+          </div>
+        `;
+        cartDiv.appendChild(row);
+      });
+
+      // Summary
+      const deliveryFee = Number(getComputedStyle(document.documentElement).getPropertyValue('--delivery-fee') || 50);
+      const coupon = getAppliedCoupon();
+      const couponAmt = coupon ? Number(coupon.amount || 0) : 0;
+      updateSummary(mrpTotal, productDiscount, deliveryFee, couponAmt);
+    }
+
+    function updateSummary(mrp, discount, delivery, coupon=0){
+      document.getElementById('mrpTotal').textContent = `₹${Math.round(mrp)}`;
+      document.getElementById('productDiscount').textContent = `-₹${Math.round(discount)}`;
+      document.getElementById('couponDiscount').textContent = `-₹${Math.round(coupon)}`;
+      document.getElementById('deliveryFee').textContent = `₹${Math.round(delivery)}`;
+      const grand = Math.round(mrp - discount - coupon + delivery);
+      document.getElementById('grandTotal').textContent = `₹${grand}`;
+      document.getElementById('summaryItems').textContent = `${readCart().reduce((s,i)=>s+i.qty,0)} items`;
+      updateCartCount();
+      // reflect coupon in payment summary placeholders
+      document.getElementById('pay_coupon') && (document.getElementById('pay_coupon').textContent = `-₹${Math.round(coupon)}`);
+      document.getElementById('pay_amount') && (document.getElementById('pay_amount').textContent = `₹${Math.round(mrp)}`);
+      document.getElementById('pay_total') && (document.getElementById('pay_total').textContent = `₹${Math.round(mrp - discount - coupon + delivery)}`);
+    }
+
+    // -------------------------
+    // Address & Order flow
+    // -------------------------
+    function openAddressForm(){
+      const cart = readCart();
+      if(!cart.length){ showMessage('Cart is empty', 'red'); return; }
+      const user = JSON.parse(localStorage.getItem(USER_KEY) || '{}');
+      if(user){
+        if(user.name) document.getElementById('addr_name').value = user.name;
+        if(user.phone) document.getElementById('addr_phone').value = user.phone;
+        if(user.address) document.getElementById('addr_line').value = user.address;
+      }
+      show('addressForm');
+    }
+
+    function saveAddressProceed(){
+      const name = document.getElementById('addr_name').value.trim();
+      const phone = document.getElementById('addr_phone').value.trim();
+      const door = document.getElementById('addr_door').value.trim();
+      const building = document.getElementById('addr_building').value.trim();
+      const line = document.getElementById('addr_line').value.trim();
+      const landmark = document.getElementById('addr_landmark').value.trim();
+      const mapSrc = document.getElementById('addr_map').value.trim();
+
+      if(!name || !phone || !line){
+        showMessage('Please enter name, phone and address line.', 'red'); return;
+      }
+
+      const address = {
+        name, phone, door, building, line, landmark, mapSrc
+      };
+
+      sessionStorage.setItem('fc_delivery_addr', JSON.stringify(address));
+      showOrderReview();
+      show('orderReview');
+    }
+
+    function showOrderReview(){
+      const addr = JSON.parse(sessionStorage.getItem('fc_delivery_addr') || '{}');
+      const reviewAddress = document.getElementById('reviewAddress');
+      reviewAddress.innerHTML = `
+        <div style="font-weight:700">${escapeHtml(addr.name || '')} — ${escapeHtml(addr.phone || '')}</div>
+        <div style="margin-top:6px;">
+          ${addr.door?escapeHtml(addr.door)+', ':''}${addr.building?escapeHtml(addr.building)+', ':''}
+          ${escapeHtml(addr.line || '')}
+        </div>
+        <div style="color:var(--muted); margin-top:6px;">${addr.landmark?escapeHtml('Landmark: '+addr.landmark):''}</div>
+      `;
+      const mapPreview = document.getElementById('mapPreview');
+      mapPreview.innerHTML = '';
+      if(addr.mapSrc){
+        mapPreview.innerHTML = `<div style="margin-top:8px;"><iframe src="${escapeHtml(addr.mapSrc)}" width="100%" height="220" style="border:0; border-radius:8px;"></iframe></div>`;
+      }
+      // basket
+      const basketEl = document.getElementById('reviewBasket'); basketEl.innerHTML = '';
+      const cart = readCart();
+      let mrp = 0, discount = 0;
+      cart.forEach(it => {
+        const p = allProducts.find(pp => pp._id === it.id) || { name:'Unknown', price:0 };
+        const total = (p.price||0) * it.qty; mrp += total;
+        const row = document.createElement('div');
+        row.style.background = 'var(--card)'; row.style.padding = '8px'; row.style.borderRadius='8px';
+        row.innerHTML = `<div style="display:flex; justify-content:space-between;"><div>${escapeHtml(p.name)}</div><div>₹${(p.price||0).toFixed(0)} x ${it.qty}</div></div>`;
+        basketEl.appendChild(row);
+      });
+
+      const delivery = Number(getComputedStyle(document.documentElement).getPropertyValue('--delivery-fee') || 50);
+      const coupon = getAppliedCoupon();
+      const couponAmt = coupon ? Number(coupon.amount || 0) : 0;
+      document.getElementById('rv_mrp').textContent = `₹${Math.round(mrp)}`;
+      document.getElementById('rv_disc').textContent = `-₹${Math.round(discount)}`;
+      document.getElementById('rv_coupon').textContent = `-₹${Math.round(couponAmt)}`;
+      document.getElementById('rv_delivery').textContent = `₹${Math.round(delivery)}`;
+      document.getElementById('rv_total').textContent = `₹${Math.round(mrp - discount - couponAmt + delivery)}`;
+
+      // update payment summary too
+      document.getElementById('pay_items').textContent = cart.reduce((s,i)=>s+i.qty,0);
+      document.getElementById('pay_amount').textContent = `₹${Math.round(mrp)}`;
+      document.getElementById('pay_total').textContent = `₹${Math.round(mrp - discount - couponAmt + delivery)}`;
+      document.getElementById('pay_coupon').textContent = `-₹${Math.round(couponAmt)}`;
+    }
+
+    // -------------------------
+    // Payments (mock)
+    // -------------------------
+    let selectedPayment = null;
+    function selectPayment(el){
+      document.querySelectorAll('.payment-option').forEach(x=>x.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedPayment = {
+        method: el.dataset.method || null,
+        provider: el.dataset.provider || el.dataset.bank || null,
+        label: el.textContent.trim()
+      };
+      showMessage(`Selected ${selectedPayment.label}`, 'green');
+    }
+
+    function proceedToPayment(){
+      // confirm
+      const cart = readCart(); if(!cart.length){ showMessage('Cart empty', 'red'); return; }
+      if(!selectedPayment){ showMessage('Please choose a payment method', 'red'); return; }
+
+      // mock gateway confirmation
+      const totalText = document.getElementById('pay_total').textContent || document.getElementById('grandTotal').textContent;
+      const total = Number((totalText+'').replace('₹','')) || 0;
+      const ok = confirm(`You will be redirected to a payment gateway to pay ₹${total}. Continue? (This is a demo)`);
+      if(!ok) return;
+      // if COD, create COD order directly
+      if(selectedPayment.method === 'cod'){
+        createOrder(selectedPayment, 'COD');
+        showMessage('Order placed with Cash on Delivery', 'green');
+        show('orders');
+        return;
+      }
+      // simulate successful payment
+      completePayment();
+    }
+
+    function completePayment(){
+      const paymentInfo = {
+        method: selectedPayment ? (selectedPayment.method || 'unknown') : 'unknown',
+        provider: selectedPayment ? (selectedPayment.provider || selectedPayment.label) : '',
+        paidAt: new Date().toISOString()
+      };
+      createOrder(paymentInfo, 'Paid');
+      showMessage('Payment successful. Order placed!', 'green');
+      show('orders');
+    }
+
+    // If user chose COD: handled inside proceedToPayment above.
+
+    function createOrder(paymentInfo, paymentStatus='Pending'){
+      const cart = readCart();
+      if(!cart.length){ showMessage('Cart empty', 'red'); return; }
+      const addr = JSON.parse(sessionStorage.getItem('fc_delivery_addr') || '{}');
+      const items = cart.map(it => {
+        const p = allProducts.find(pp => pp._id === it.id) || { name:'Unknown', price:0 };
+        return { id: it.id, name: p.name, price: p.price || 0, qty: it.qty, total: (p.price||0)*it.qty };
+      });
+      const mrp = items.reduce((s,i)=> s + i.total, 0);
+      const discount = 0;
+      const coupon = getAppliedCoupon();
+      const couponAmt = coupon ? Number(coupon.amount || 0) : 0;
+      const delivery = Number(getComputedStyle(document.documentElement).getPropertyValue('--delivery-fee') || 50);
+      const total = Math.round(mrp - discount - couponAmt + delivery);
+      const orders = readOrders();
+      const order = {
+        id: 'ORD' + Date.now().toString().slice(-8) + Math.floor(Math.random()*900).toString(),
+        items, mrp, discount, coupon: coupon ? coupon.code : null, couponAmt,
+        delivery, total,
+        address: addr,
+        payment: paymentInfo,
+        status: paymentStatus,
+        placedAt: new Date().toISOString()
+      };
+      orders.unshift(order);
+      writeOrders(orders);
+      // clear cart & coupon & session address
+      writeCart([]);
+      clearCoupon();
+      sessionStorage.removeItem('fc_delivery_addr');
+      updateCartCount();
+      renderOrders();
+    }
+
+    // -------------------------
+    // Orders rendering
+    // -------------------------
+    function renderOrders(){
+      const el = document.getElementById('ordersList');
+      const orders = readOrders();
+      el.innerHTML = '';
+      if(!orders.length){ el.innerHTML = '<p>No orders yet.</p>'; return; }
+      orders.forEach(o=>{
+        const card = document.createElement('div');
+        card.style.background = 'var(--card)';
+        card.style.padding = '12px';
+        card.style.borderRadius = '10px';
+        card.style.marginBottom = '12px';
+        card.style.boxShadow = '0 3px 8px rgba(0,0,0,0.04)';
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <strong>Order ${escapeHtml(o.id)}</strong>
+              <div style="color:var(--muted); font-size:13px;">${new Date(o.placedAt).toLocaleString()}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-weight:800">₹${o.total}</div>
+              <div style="color:var(--muted); font-size:13px">${escapeHtml(o.status)}</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;">
+            <div style="font-weight:700">Delivery To:</div>
+            <div>${escapeHtml(o.address.name || '')} — ${escapeHtml(o.address.phone || '')}</div>
+            <div style="color:var(--muted)">${escapeHtml(o.address.door || '')} ${escapeHtml(o.address.building || '')} ${escapeHtml(o.address.line || '')}</div>
+          </div>
+          <div style="margin-top:10px;">
+            <div style="font-weight:700">Items</div>
+            ${ o.items.map(it => `<div style="display:flex; justify-content:space-between; padding:6px 0;">${escapeHtml(it.name)} <span>₹${it.price} x ${it.qty}</span></div>`).join('') }
+          </div>
+          <div style="margin-top:8px; color:var(--muted); font-size:13px;">
+            ${ o.coupon ? 'Coupon: ' + escapeHtml(o.coupon) + ' (-₹' + o.couponAmt + ')' : '' }
+          </div>
+        `;
+        el.appendChild(card);
+      });
+    }
+
+    // -------------------------
+    // Profile
+    // -------------------------
+    function saveProfile(){
+      const name = document.getElementById('user_name').value.trim();
+      const phone = document.getElementById('user_phone').value.trim();
+      const addr = document.getElementById('user_address').value.trim();
+      if(!name || !phone){ showMessage('Name & phone required', 'red'); return; }
+      const user = { name, phone, address: addr };
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+      showMessage('Profile saved', 'green');
+      show('home');
+    }
+    function loadProfileToForm(){
+      const user = JSON.parse(localStorage.getItem(USER_KEY) || '{}');
+      document.getElementById('user_name').value = user.name || '';
+      document.getElementById('user_phone').value = user.phone || '';
+      document.getElementById('user_address').value = user.address || '';
+    }
+    function renderProfileQuick(){
+      const u = JSON.parse(localStorage.getItem(USER_KEY) || '{}');
+      const el = document.getElementById('profileQuick');
+      if(!el) return;
+      el.innerHTML = u.name ? `<div><strong>${escapeHtml(u.name)}</strong><div>${escapeHtml(u.phone||'')}</div><div style="color:var(--muted)">${escapeHtml(u.address||'')}</div></div>` : '<p>No profile saved.</p>';
+    }
+
+    // -------------------------
+    // Farm visits & Advice helpers
+    // -------------------------
+    // Mock farmer list (if backend not available)
+    const MOCK_FARMERS = [
+      { id:'f1', name:'Farmer Ramu', village:'Udumalpet', phone:'9876543210' },
+      { id:'f2', name:'Farmer Meena', village:'Thanjavur', phone:'9876501234' },
+      { id:'f3', name:'Farmer Kannan', village:'Pollachi', phone:'9876512345' }
+    ];
+
+    function populateFarmersDropdowns(){
+      let farmers = [];
+      // try to fetch from backend if available
+      // otherwise use mock list
+      fetch('/api/consumer/farmers').then(r=>r.json()).then(data=>{
+        if(Array.isArray(data) && data.length) farmers = data;
+        else farmers = MOCK_FARMERS;
+      }).catch(e=>{
+        farmers = MOCK_FARMERS;
+      }).finally(()=>{
+        const sel = document.getElementById('visit_farmer');
+        const adv = document.getElementById('advice_farmer');
+        const farmersList = document.getElementById('farmersList');
+        sel.innerHTML = '<option value="">Any nearby farmer</option>';
+        adv.innerHTML = '<option value="">Select a farmer</option>';
+        farmers.forEach(f=>{
+          const opt = document.createElement('option'); opt.value = f.id; opt.textContent = f.name + (f.village ? ' — ' + f.village : '');
+          sel.appendChild(opt);
+          const opt2 = document.createElement('option'); opt2.value = f.id; opt2.textContent = f.name + (f.village ? ' — ' + f.village : '');
+          adv.appendChild(opt2);
+        });
+        // render small farmers list (right column of advice)
+        if(farmersList){
+          farmersList.innerHTML = farmers.map(f => `<div style="padding:6px 0; border-bottom:1px solid #f0f0f0;"><strong>${escapeHtml(f.name)}</strong><div style="color:var(--muted); font-size:13px">${escapeHtml(f.village||'')}</div></div>`).join('');
+        }
+        // also cache for other uses
+        window.__fc_farmers = farmers;
+      });
+    }
+
+    // Advice threads stored in localStorage keyed by farmer id
+    function loadFarmersList(){
+      if(!window.__fc_farmers) populateFarmersDropdowns();
+    }
+
+    function loadThreadForFarmer(farmerId){
+      const threadEl = document.getElementById('adviceThread');
+      threadEl.innerHTML = '';
+      if(!farmerId){ threadEl.innerHTML = '<p>Select a farmer to view messages.</p>'; return; }
+      const threads = JSON.parse(localStorage.getItem(ADVICE_KEY) || '{}');
+      const thread = threads[farmerId] || [];
+      if(!thread.length){ threadEl.innerHTML = '<p>No messages yet. Ask your question below.</p>'; return; }
+      thread.forEach(m=>{
+        const div = document.createElement('div');
+        div.className = 'message ' + (m.from === 'me' ? 'me' : 'farmer');
+        div.style.display = 'block';
+        div.innerHTML = `<div style="font-size:13px; font-weight:700;">${escapeHtml(m.from === 'me' ? 'You' : (m.farmerName||'Farmer'))}</div>
+                         <div style="margin-top:6px;">${escapeHtml(m.text)}</div>
+                         ${ m.img ? `<div style="margin-top:6px;"><img src="${m.img}" style="max-width:160px; border-radius:8px;" /></div>` : '' }
+                         <div style="margin-top:6px; color:var(--muted); font-size:12px;">${new Date(m.time).toLocaleString()}</div>`;
+        threadEl.appendChild(div);
+      });
+      threadEl.scrollTop = threadEl.scrollHeight;
+    }
+
+    function sendAdviceMessage(){
+      const farmerId = document.getElementById('advice_farmer').value;
+      if(!farmerId){ showMessage('Please select a farmer', 'red'); return; }
+      const text = document.getElementById('advice_message').value.trim();
+      if(!text){ showMessage('Type your question', 'red'); return; }
+      const fileInput = document.getElementById('advice_image');
+      const reader = new FileReader();
+      const process = (imgData) => {
+        const threads = JSON.parse(localStorage.getItem(ADVICE_KEY) || '{}');
+        const arr = threads[farmerId] || [];
+        const farmer = (window.__fc_farmers || MOCK_FARMERS).find(f=> f.id === farmerId) || {};
+        arr.push({ from:'me', text, img: imgData || null, time: new Date().toISOString(), farmerName: farmer.name });
+        threads[farmerId] = arr;
+        localStorage.setItem(ADVICE_KEY, JSON.stringify(threads));
+        document.getElementById('advice_message').value = '';
+        document.getElementById('advice_image').value = '';
+        document.getElementById('advicePreview').innerHTML = '';
+        showMessage('Question sent to farmer', 'green');
+        loadThreadForFarmer(farmerId);
+      };
+
+      if(fileInput.files && fileInput.files[0]){
+        reader.onload = function(e){
+          process(e.target.result);
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        process(null);
+      }
+    }
+
+    // -------------------------
+    // Visits
+    // -------------------------
+    function requestVisit(){
+      const farmer = document.getElementById('visit_farmer').value;
+      const datetimeDate = document.getElementById('visit_date').value;
+      const datetimeTime = document.getElementById('visit_time').value;
+      const datetime = (datetimeDate ? datetimeDate : '') + (datetimeTime ? ' ' + datetimeTime : '');
+      const members = document.getElementById('visit_members').value.trim();
+      const accom = document.getElementById('visit_accom').value;
+      const food = document.getElementById('visit_food').value;
+      const notes = document.getElementById('visit_notes').value.trim();
+      const tnc = document.getElementById('visit_tnc').checked;
+
+      if(!tnc){ showMessage('Please accept terms & conditions', 'red'); return; }
+      if(!datetimeDate){ showMessage('Please select a preferred date', 'red'); return; }
+
+      const visits = readVisits();
+      const request = {
+        id: 'V' + Date.now().toString().slice(-8),
+        farmer: farmer || null,
+        datetime: datetime || null,
+        members: members || '1',
+        accom, food, notes,
+        status: 'Pending',
+        placedAt: new Date().toISOString()
+      };
+      visits.unshift(request);
+      writeVisits(visits);
+      showMessage('Visit requested. Waiting for farmer approval', 'green');
+      renderVisitRequests();
+    }
+
+    function renderVisitRequests(){
+      const el = document.getElementById('myVisitRequests');
+      const visits = readVisits();
+      el.innerHTML = '';
+      if(!visits.length){ el.innerHTML = '<p>No visit requests.</p>'; return; }
+      visits.forEach(v=>{
+        const div = document.createElement('div');
+        div.style.background = 'var(--card)';
+        div.style.padding = '10px';
+        div.style.borderRadius = '8px';
+        div.style.marginBottom = '8px';
+        div.innerHTML = `
+          <div style="display:flex; justify-content:space-between">
+            <div><strong>${escapeHtml(v.id)}</strong><div style="color:var(--muted); font-size:13px;">${new Date(v.placedAt).toLocaleString()}</div></div>
+            <div style="text-align:right">
+              <div style="font-weight:800">${escapeHtml(v.status)}</div>
+            </div>
+          </div>
+          <div style="margin-top:8px;">Farmer: ${escapeHtml((window.__fc_farmers||[]).find(f=>f.id===v.farmer)?.name || 'Any')}</div>
+          <div style="margin-top:6px;">When: ${escapeHtml(v.datetime || 'Not set')}</div>
+          <div style="margin-top:6px;">Members: ${escapeHtml(v.members)}</div>
+          <div style="margin-top:8px;">Notes: ${escapeHtml(v.notes||'')}</div>
+          <div style="margin-top:8px; display:flex; gap:8px;">
+            ${ v.status === 'Pending' ? `<button class="btn-outline" onclick="cancelVisit('${v.id}')">Cancel</button> <button class="btn-primary" onclick="simulateApproveVisit('${v.id}')">Simulate Approve</button>` : `<button class="btn-primary" onclick="viewVisitDetails('${v.id}')">View</button>`}
+          </div>
+        `;
+        el.appendChild(div);
+      });
+    }
+
+    function cancelVisit(id){
+      let visits = readVisits();
+      visits = visits.filter(v=> v.id !== id);
+      writeVisits(visits);
+      showMessage('Visit cancelled', 'red');
+      renderVisitRequests();
+    }
+
+    // For demo: simulate farmer approval
+    function simulateApproveVisit(id){
+      const visits = readVisits();
+      const idx = visits.findIndex(v=> v.id === id);
+      if(idx>-1){
+        visits[idx].status = 'Approved';
+        writeVisits(visits);
+        showMessage('Visit approved (simulated)', 'green');
+        renderVisitRequests();
+      }
+    }
+
+    function viewVisitDetails(id){
+      const visits = readVisits();
+      const v = visits.find(x=> x.id === id);
+      if(!v) { showMessage('Not found', 'red'); return; }
+      alert(`Visit ${v.id}\nFarmer: ${(window.__fc_farmers||[]).find(f=>f.id===v.farmer)?.name || 'Any'}\nWhen: ${v.datetime}\nStatus: ${v.status}`);
+    }
+
+    // -------------------------
+    // Helpers & init
+    // -------------------------
+    function escapeHtml(str){
+      if(!str) return '';
+      return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[s]);
+    }
+
+    // Home news slider data & behavior
+    const NEWS = [
+      { title: 'Pongal Festival Offers', body: 'Special discounts on seeds and grains this Pongal.' },
+      { title: 'Organic Seminar', body: 'Free webinar for organic farming on 2025-11-10. Register now.' },
+      { title: 'Soil Health Tips', body: 'Learn how to test soil at home — simple DIY methods.' },
+      { title: 'Farmers Market This Weekend', body: 'Visit the local market to buy farm-fresh produce direct.' }
+    ];
+    let newsIndex = 0;
+    function renderNews(){
+      const track = document.getElementById('newsTrack'); track.innerHTML = '';
+      NEWS.forEach(n=> {
+        const div = document.createElement('div'); div.className = 'news-item';
+        div.innerHTML = `<h4>${escapeHtml(n.title)}</h4><div style="color:var(--muted); font-size:13px">${escapeHtml(n.body)}</div>`;
+        track.appendChild(div);
+      });
+      updateNewsPosition();
+    }
+    function updateNewsPosition(){
+      const track = document.getElementById('newsTrack');
+      const width = 328; // approx item width + gap
+      track.style.transform = `translateX(${-newsIndex * (width)}px)`;
+    }
+    function nextNews(){ newsIndex = (newsIndex + 1) % NEWS.length; updateNewsPosition(); }
+    function prevNews(){ newsIndex = (newsIndex - 1 + NEWS.length) % NEWS.length; updateNewsPosition(); }
+    setInterval(()=>{ newsIndex = (newsIndex + 1) % NEWS.length; updateNewsPosition(); }, 4500);
+
+    // initial load
+    (function init(){
+      updateCartCount();
+      renderProducts();
+      renderOrders();
+      renderProfileQuick();
+      populateFarmersDropdowns();
+      renderNews();
+      renderVisitRequests();
+    })();
+
+    // attach event: if user selected COD, create order directly (keeps your previous approach)
+    document.addEventListener('click', function(e){
+      const el = e.target.closest('.payment-option');
+      if(el && el.dataset.method === 'cod'){
+        if(confirm('Place order with Cash on Delivery?')){ // still using the confirm for demo
+          const addr = JSON.parse(sessionStorage.getItem('fc_delivery_addr') || '{}');
+          if(!addr || !addr.name || !addr.phone || !addr.line){
+            showMessage('Please fill delivery details first', 'red');
+            show('addressForm');
+            return;
+          }
+          // proceed with COD
+          selectedPayment = { method:'cod', provider:'COD', label:'Cash on Delivery' };
+          createOrder(selectedPayment, 'COD');
+          showMessage('Order placed with Cash on Delivery', 'green');
+          show('orders');
+        }
+      }
+    });
+
+    // Visits init: render visit requests on load
+    renderVisitRequests();
+
+  </script>
+</body>
+</html>

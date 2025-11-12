@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Farmer Login | Farm Connect</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #74b816, #4d7c0f);
+    }
+    .login-container {
+      background: #fff;
+      padding: 40px;
+      border-radius: 18px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      width: 400px;
+      text-align: center;
+    }
+    .login-container h2 {
+      color: #2d6a4f;
+      margin-bottom: 25px;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    button {
+      background: #2d6a4f;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { background: #1b4332; }
+    a { color: #2d6a4f; text-decoration: none; font-weight: 500; }
+    a:hover { text-decoration: underline; }
+    .captcha-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .captcha-text {
+      background: #e9f5db;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #2d6a4f;
+    }
+    .google-btn-container {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container" id="loginBox">
+    <h2>👨‍🌾 Farmer Login</h2>
+    <form id="loginForm">
+      <input id="phone" placeholder="Phone number" required />
+      <input id="dob" type="date" required />
+
+      <div class="captcha-box">
+        <span id="captchaText" class="captcha-text"></span>
+        <button type="button" onclick="generateCaptcha()">↻</button>
+      </div>
+      <input id="captchaInput" placeholder="Enter CAPTCHA" required />
+
+      <button type="submit">Login</button>
+      <p>or</p>
+
+      <!-- 🌐 Google Sign-In Button -->
+      <div id="g_id_onload"
+           data-client_id="695369265506-2osjki5s52i1g1unkgc53rmac5cksko9.apps.googleusercontent.com"
+           data-context="signin"
+           data-ux_mode="popup"
+           data-callback="handleCredentialResponse"
+           data-auto_prompt="false">
+      </div>
+      <div class="g_id_signin"
+           data-type="standard"
+           data-size="large"
+           data-theme="outline"
+           data-shape="rectangular"
+           data-text="signin_with"
+           data-logo_alignment="left">
+      </div>
+
+      <p>New? <a href="farmersignup.html">Sign up</a></p>
+    </form>
+  </div>
+
+  <script>
+    function generateCaptcha() {
+      const captcha = Math.floor(1000 + Math.random() * 9000);
+      document.getElementById("captchaText").textContent = captcha;
+    }
+    generateCaptcha();
+
+    document.getElementById('loginForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const phone = document.getElementById('phone').value.trim();
+      const dob = document.getElementById('dob').value;
+      const enteredCaptcha = document.getElementById('captchaInput').value;
+      if (enteredCaptcha !== document.getElementById('captchaText').textContent) {
+        alert("❌ Incorrect CAPTCHA. Try again!");
+        generateCaptcha();
+        return;
+      }
+      try {
+        const res = await fetch('/api/farmer/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, dob })
+        });
+        const data = await res.json();
+        if (data.success && data.farmer) {
+          localStorage.setItem('farmerId', data.farmer._id);
+          localStorage.setItem('farmerName', data.farmer.name);
+          window.location.href = 'farmer_dashboard.html';
+        } else {
+          alert(data.message || 'Login failed');
+        }
+      } catch (err) {
+        alert('Something went wrong. Please try again.');
+      }
+    });
+
+    // 🌐 Google Sign-In Handler
+    function handleCredentialResponse(response) {
+      const user = parseJwt(response.credential);
+      alert(`Welcome ${user.name}!`);
+      window.location.href = "farmer_dashboard.html";
+    }
+
+    function parseJwt(token) {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      ).join(''));
+      return JSON.parse(jsonPayload);
+    }
+  </script>
+</body>
+</html>

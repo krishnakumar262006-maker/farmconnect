@@ -1,0 +1,82 @@
+body {
+  font-family: Arial, sans-serif;
+  background: url("../images/farm-bg.jpg") no-repeat center center/cover;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+/* Default small header for all pages */
+.default-header {
+  padding: 15px 20px;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid #fff;
+}
+
+.logo-title-small {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* space between logo and text */
+}
+
+.small-logo {
+  width: 50px;   /* small logo size */
+  height: auto;
+  border-radius: 50%; /* keeps circular */
+}
+
+.default-header h1 {
+  font-size: 1.5em;  /* smaller than home page */
+  color: #fff;
+  margin: 0;
+}
+
+header {
+  background: green;
+  color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+.container {
+  max-width: 400px;
+  margin: 50px auto;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+form label {
+  display: block;
+  margin-top: 10px;
+}
+
+form input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  margin-top: 15px;
+  padding: 10px;
+  width: 100%;
+  background: green;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: darkgreen;
+}
+
+p {
+  text-align: center;
+  margin-top: 15px;
+}

@@ -1,0 +1,73 @@
+.login-container {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0px 6px 20px rgba(0,0,0,0.4);
+}
+
+.login-container h2 {
+  margin-bottom: 200px;
+  font-size: 2em;
+}
+/* Default small header for all pages */
+.default-header {
+  padding: 15px 20px;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid #fff;
+}
+
+.logo-title-small {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* space between logo and text */
+}
+
+.small-logo {
+  width: 50px;   /* small logo size */
+  height: auto;
+  border-radius: 50%; /* keeps circular */
+}
+
+.default-header h1 {
+  font-size: 1.5em;  /* smaller than home page */
+  color: #fff;
+  margin: 0;
+}
+
+
+.login-container input {
+  display: block;
+  width: 90%;
+  margin: 12px auto;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 1.1em;
+}
+
+.login-container button {
+  width: 95%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #2ecc71;
+  color: white;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.login-container button:hover {
+  background: #27ae60;
+}
+
+.login-container .login-icon {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 15px;
+}
