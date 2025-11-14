@@ -66,5 +66,6 @@ mongoose.connect(MONGO)
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}/home.html`));
+app.listen(PORT, () => console.log(`🚀 Server running on https://farmconnect-gfi9o8fxa-krishnakumar262006-makers-projects.vercel.app/`));
+
 
